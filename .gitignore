@@ -1,0 +1,6 @@
+<your_venv>
+local_settings.py
+btc_jpy.png
+btc_rub.png
+ammo.png
+*.pyc
