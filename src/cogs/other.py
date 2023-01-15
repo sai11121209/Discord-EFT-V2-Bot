@@ -38,7 +38,7 @@ class Other(commands.Cog):
             embed.set_author(
                 name="EFT(Escape from Tarkov) Wiki Bot",
                 url="https://github.com/sai11121209",
-                # icon_url=client.get_user(279995095124803595).avatar_url,
+                icon_url=self.bot.user.avatar.url,
             )
             embed.set_footer(text=f"EFT Wiki Bot最終更新")
             await self.bot.send_deletable_message(intrtaction, embed=embed)
@@ -62,7 +62,7 @@ class Other(commands.Cog):
         embed.set_author(
             name="EFT(Escape from Tarkov) Wiki Bot",
             url="https://github.com/sai11121209",
-            # icon_url=client.get_user(279995095124803595).avatar_url,
+            icon_url=self.bot.user.avatar.url,
         )
         embed.set_footer(text=f"EFT Wiki Bot最終更新")
         await self.bot.send_deletable_message(intrtaction, embed=embed)

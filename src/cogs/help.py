@@ -47,11 +47,11 @@ class Help(commands.Cog):
                     )
             except:
                 pass
-        # embed.set_thumbnail(url=client.get_user(803770349908131850).avatar_url)
+        embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.set_author(
             name="EFT(Escape from Tarkov) Wiki Bot",
             url="https://github.com/sai11121209",
-            # icon_url=client.get_user(279995095124803595).avatar_url,
+            icon_url=self.bot.user.avatar.url,
         )
         embed.set_footer(text="EFT Wiki Bot最終更新")
         await self.bot.send_deletable_message(intrtaction, embed=embed)

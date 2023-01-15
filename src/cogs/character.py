@@ -50,7 +50,7 @@ class Character(commands.Cog):
         embed.set_author(
             name="EFT(Escape from Tarkov) Wiki Bot",
             url="https://github.com/sai11121209",
-            # icon_url=client.get_user(279995095124803595).avatar_url,
+            icon_url=self.bot.user.avatar.url,
         )
         embed.set_footer(
             text="トレーダー名をクリックすることで各トレーダータスクの詳細情報にアクセスできるよー。",
@@ -103,7 +103,7 @@ class Character(commands.Cog):
         embed.set_author(
             name="EFT(Escape from Tarkov) Wiki Bot",
             url="https://github.com/sai11121209",
-            # icon_url=client.get_user(279995095124803595).avatar_url,
+            icon_url=self.bot.user.avatar.url,
         )
         embed.set_footer(
             text="ボス名をクリックすることで各ボスの詳細情報にアクセスできるよー。",
