@@ -81,7 +81,7 @@ def get_weapons_data():
                             "imageUrl": re.sub(
                                 "scale-to-width-down/[0-9]*\?cb=[0-9]*",
                                 "",
-                                weapon.find("img").attrs["src"],
+                                weapon.find("img").attrs["data-src"],
                             )
                             + "?format=original",
                             "重量": [
@@ -161,7 +161,7 @@ def get_weapons_data():
                             "imageUrl": re.sub(
                                 "scale-to-width-down/[0-9]*\?cb=[0-9]*",
                                 "",
-                                weapon.find("img").attrs["src"],
+                                weapon.find("img").attrs["data-src"],
                             )
                             + "?format=original",
                             "重量": [
@@ -222,7 +222,7 @@ def get_weapons_data():
                             "imageUrl": re.sub(
                                 "scale-to-width-down/[0-9]*\?cb=[0-9]*",
                                 "",
-                                weapon.find("img").attrs["src"],
+                                weapon.find("img").attrs["data-src"],
                             )
                             + "?format=original",
                             "重量": [
@@ -289,7 +289,7 @@ def get_weapons_data():
                             "imageUrl": re.sub(
                                 "scale-to-width-down/[0-9]*\?cb=[0-9]*",
                                 "",
-                                weapon.find("img").attrs["src"],
+                                weapon.find("img").attrs["data-src"],
                             )
                             + "?format=original",
                             "重量": [
@@ -337,7 +337,7 @@ def get_weapons_data():
                             "imageUrl": re.sub(
                                 "scale-to-width-down/[0-9]*\?cb=[0-9]*",
                                 "",
-                                weapon.find("img").attrs["src"],
+                                weapon.find("img").attrs["data-src"],
                             )
                             + "?format=original",
                             "重量": [

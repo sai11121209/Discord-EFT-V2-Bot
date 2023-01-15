@@ -17,7 +17,7 @@ def get_server_status(previous_status: int) -> Tuple[int, dict]:
         int: 現在のステータスコード
         dict: 現在のステータスに応じたデータ
     """
-    response = rq.get("https://status.escapefromtarkov.com/api/global/status")
+    response = get_requests_response("https://status.escapefromtarkov.com/api/global/status")
     now_status = json.loads(response.text)["status"]
     status_context = {
         # 正常
@@ -174,15 +174,15 @@ def get_enrage_message(bot: object) -> str:
     bot.enrage_counter += 1
     return message
 
-def get_url(base_url: str, url: str):
+def get_url(base_url: str, url: str) -> str:
     return base_url+url
 
-def get_requests_response(base_url: str, url: str=""):
+def get_requests_response(base_url: str, url: str="") -> rq:
     return rq.get(get_url(base_url, url))
 
-def get_beautiful_soup_object(response: rq, purse :str="lxml", class_name :str="wikitable"):
+def get_beautiful_soup_object(response: rq, purse :str="lxml", class_name :str="wikitable") -> BeautifulSoup:
     soup = BeautifulSoup(response.text, purse)
     return soup.find(class_=class_name) if class_name else soup
 
-def get_translate_text(text: str, source_language: str="en", target_language: str="ja"):
+def get_translate_text(text: str, source_language: str="en", target_language: str="ja") -> rq:
     return get_requests_response(Url.TRANSLATE_URL, f"?text={text}&source={source_language}&target={target_language}")

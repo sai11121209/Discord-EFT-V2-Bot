@@ -5,7 +5,7 @@ import datetime
 from datetime import datetime as dt
 import discord
 from discord.ext import tasks, commands
-from const import ChannelCode, AuthorCode, ServerStatusCode
+from const import ChannelCode, AuthorCode, ServerStatusCode, CommandCategory
 import difflib
 import random as rand
 
@@ -32,6 +32,8 @@ logging = logging.getLogger(__name__)
 
 JST = datetime.timezone(datetime.timedelta(hours=9) , 'JST')
 
+COMMAND_PREFIX = "/"
+
 INITIAL_EXTENSIONS = [
     "cogs.test",
     "cogs.develop",
@@ -44,6 +46,8 @@ INITIAL_EXTENSIONS = [
     "cogs.status",
     "cogs.map",
     "cogs.task",
+    "cogs.weapon",
+    "cogs.help",
     "cogs.reload",
 ]
 TRADER_LIST = {
@@ -263,7 +267,195 @@ BOSS_LIST = {
         "followers": "3-5",
     },
 }
-
+# 新規コマンド追加時は必ずcommandListに追加
+COMMAND_LIST = {
+    "EFT公式サイト表示": ["TOP"],
+    "日本EFTWiki表示": ["JAWIKI"],
+    "海外EFTWiki表示": ["ENWIKI"],
+    "マップ一覧表示": ["MAP"],
+    # "各マップ情報表示": mapList,
+    "武器一覧表示": ["WEAPON"],
+    "各武器詳細表示": [],
+    "弾薬性能表示": ["AMMO"],
+    "フリーマーケット情報表示": ["MARKET"],
+    "TarkovTools情報表示": ["TARKOVTOOLS"],
+    "各アイテムフリーマーケット価格表示": [],
+    "ディーラー一覧表示": ["DEALER"],
+    "ボス一覧表示": ["BOSS"],
+    "マップ抽選": ["RANDOMMAP"],
+    "武器抽選": ["RANDOMWEAPON"],
+    "早見表表示": ["CHART"],
+    "アーマ早見表表示": ["ARMOR"],
+    "ヘッドセット早見表": ["HEADSET"],
+    "更新履歴表示": ["PATCH"],
+    "現在時刻表示": ["NOW"],
+    "ビットコイン価格表示": ["BTC"],
+    "ソースコード表示": ["SOURCE"],
+}
+NOTIFICATION_INFORMATION = {}
+# 上に追記していくこと
+PATCH_NOTES = {
+    "4.2:2022/01/28 16:00": [
+        "マップ情報表示コマンド __`MAP`__ のReserveにおいて日本語翻訳マップを追加しました。",
+    ],
+    "4.1:2022/01/20 16:00": [
+        "現在のユーロ、ドルのEFT為替レート表示コマンド _`RATE`_ を追加しました。",
+        "ユーロからルーブルの値段を計算するコマンド _`RATE EURO`_ を追加しました。",
+        "ドルからルーブルの値段を計算するコマンド _`RATE DOLLAR`_ を追加しました。",
+        "弾薬性能表示コマンド __`AMMO`__ を呼び出した際に表示される弾薬の性能比較画像を12.12版に更新しました。",
+    ],
+    "4.0:2022/01/14 02:00": [
+        "Discord SlashCommand の実装に伴う大幅仕様変更",
+        "各武器詳細表示コマンド __`WEAPON 武器名`__ において表示されるEmbedの表示方式を変更しました。",
+        "__`ARMOR`__ __`HEADSET`__ __`ITEMVALUE`__ __`RECOVERY`__ __`TASKITEM`__ __`TASKTREE`__ __`LIGHTHOUSETASK`__ の7コマンドが早見表表示コマンド __`CHART`__ のサブコマンドとして組み込まれました。以降は __`CHART ARMOR`__ のように呼び出せるようになります。",
+        "サーバステータス確認コマンド __`STATUS`__ の動作を安定化しました。",
+        "武器抽選コマンド __`RANDOMWEAPON`__ マップ抽選コマンド __`RANDOMMAP`__ において発生していたバグの修正。",
+        "一部処理の並列化による起動時間、応答時間の短縮。",
+        "その他細かい修正",
+    ],
+    "3.7:2022/01/02 06:00": [
+        "サーバステータス確認コマンドを __`STATUS`__ を実装しました。",
+        "本BOTが5分置きににEscape from Tarkovサーバの状態を監視し、異常があった場合に通知してくれる機能を実装しました。",
+        "その他細かい修正",
+    ],
+    "3.6:2021/11/25 20:00": [
+        "弾薬性能表示コマンドにおいて __`AMMO 口径名`__ __`AMMO 弾薬名`__ を入力することで特定口径の弾薬や、弾薬の性能を見ることできるようになりました。",
+        "その他細かい修正",
+    ],
+    "3.5:2021/11/09 13:00": [
+        "海外Wikiのサイト仕様変更に伴う内部処理の修正",
+        "各武器詳細表示コマンド __`WEAPON 武器名`__ において表示されるAmmoChartのUIを変更しました。",
+        "その他細かい修正",
+    ],
+    "3.4:2021/10/25 18:00": [
+        "コマンド実行時呼び出しに使用したメッセージを消去するようになりました",
+        "海外Wikiのサイト仕様変更に伴う内部処理の修正",
+        "その他細かい修正",
+    ],
+    "3.3:2021/09/30 00:00": [
+        "Among Us Botとの連携アップデート",
+        "その他細かい修正",
+    ],
+    "3.2.1:2021/09/14 00:00": [
+        "武器抽選コマンド __`RANDOMWEAPON`__ においてすべての処理が正常に実行されず複数回同様のコマンドが実行されてしまう問題の修正。WOLTERFEN#6329ありがとうございます。",
+        "マップ抽選コマンド __`RANDOMMAP`__ においてすべての処理が正常に実行されず複数回同様のコマンドが実行されてしまう問題に加え、未実装マップも結果として出力されてしまっていた問題を修正。",
+    ],
+    "3.2:2021/08/19 13:00": [
+        "ヘッドセット早見表コマンド __`HEADSET`__ を追加しました。",
+        "各武器詳細表示コマンド __`WEAPON 武器名`__ において投擲武器名を入力した際正常にレスポンスが行われなかった問題の修正。",
+        "各武器詳細表示コマンド __`WEAPON 武器名`__ にArmorクラス7が表示されてしまっていた問題の修正。",
+    ],
+    "3.1:2021/08/07 16:00": [
+        "各武器詳細表示コマンド __`WEAPON 武器名`__ を入力した際に弾薬表も同時に表示されるようになりました。",
+    ],
+    "3.0.1:2021/07/24 01:00": [
+        "各武器詳細表示コマンド __`WEAPON 武器名`__ を入力した際に発生していたエラー20210654072607を修正しました。WOLTERFEN#6329ありがとうございます。",
+        "海外公式wikiのサイト更新に伴う仕様変更によりマップ、タスク、武器情報にアクセスできなかった問題を修正しました。",
+        "各武器詳細表示コマンド __`WEAPON 武器名`__  、タスク詳細表示コマンド __`TASK {タスク名}`__ コマンドの補完処理における不具合を修正しました。",
+        "ボイスチャット参加中(ボイスチャンネル参加者ロール付与中)に特定メッセージに対して返信を行なった際に返信先のユーザを自動的にメンションする様になりました。",
+        "各種細かい不具合、動作改善。",
+    ],
+    "3.0:2021/07/12 23:30": [
+        "コマンド呼び出し時の不具合を修正しました。",
+        "タスク詳細表示コマンド __`TASK {タスク名}`__ の動作を一部変更しました。",
+        "タスクツリー早見表コマンド __`TASKTREE`__ を追加しました。",
+        "武器のロードアウトを組むことができるURLを呼び出すロードアウト作成コマンド __`LOADOUTS`__ を追加しました。",
+        "タスク詳細表示コマンド __`TASK {タスク名}`__ を正式実装しました。",
+        "タスク一覧コマンド __`TASK`__ とタスク詳細表示コマンド __`TASK {タスク名}`__ の2コマンドが仮追加されました。",
+        "本サーバに送信されたメッセージに対して __`❌`__ リアクションが付与すると誰でもメッセージを消去できてしまう脆弱性の修正を行いました。",
+        "__`notification-general`__ において発言した際の全体メンションの処理が変更されました。",
+        "ボイスチャンネル使用中のユーザがテキストを書き込んだ際の処理が変更されました。",
+        "各マップ情報表示コマンド __`MAP マップ名`__ 各武器詳細表示コマンド __`WEAPON 武器名`__ を入力した際に発生していたエラー20210617212538を修正しました。",
+        "Discord Botフレームワーク環境への移行準に伴い各マップ情報表示コマンド ~~__`マップ名`__~~ から __`MAP マップ名`__ に変更されました。",
+        "Discord Botフレームワーク環境への移行準に伴い各武器詳細表示コマンド ~~__`武器名`__~~ から __`WEAPON 武器名`__ に変更されました。",
+        "ヘルプコマンド __`HELP`__ が呼び出された際にヘルプコマンドが消去されてしまう不具合を修正しました。",
+        "全コマンドにおいて __`❌`__ リアクションが付与されクリックすることで表示されている実行結果が消去できるようになりました。",
+    ],
+    "3.0:2021/06/08 20:35": [
+        "タスク使用アイテム早見表コマンド __`TASKITEM`__ で表示される画像が0.12.9.10532時点のものに更新されました。",
+        "ヘルプコマンド __`HELP`__ を呼び出した後コマンドを入力し正常に呼び出された場合HELPコマンドの出力が消去されるようになりました。",
+        "ボイスチャット入退室通知が入室時のみ通知されるように変更されました。",
+        "マップ関連情報をBot起動時に動的取得するようになりました。",
+        "未実装マップもマップ一覧表示コマンド __`MAP`__ で表示されるようになりました",
+        "Discord Botフレームワーク環境への移行準備完了。現在試験的に新環境でプログラムを実行中です。",
+        "例外処理発生時エラーログを出力するようになりました。",
+        "コマンド補完性能向上。",
+        "各種不具合の修正。",
+    ],
+    "2.3:2021/05/20 19:00": ["コマンド不一致時に表示されるヒントコマンドをリアクション選択から実行できるようになりました。"],
+    "2.2.1:2021/05/20 14:00": ["各武器詳細表示コマンド __`武器名`__ の仕様を変更しました。"],
+    "2.2:2021/05/15 18:00": [
+        "出会いを目的としたフレンド募集を含む投稿を行った場合警告が送られる様になりました。",
+    ],
+    "2.1:2021/05/08 17:00": [
+        "自動全体メンションに本文を含む様に変更されました。",
+        "TarkovTools情報表示コマンド __`TARKOVTOOLS`__ を追加しました。",
+        "以前から仕様変更予定にあった早見表表示、アーマ早見表表示コマンド __`CHART`__ __`ARMOR`__ の正式実装を行いました。",
+        "早見表表示、アーマ早見表表示コマンド __`CHART`__ __`ARMOR`__ の正式実装、又TarkovTools情報表示コマンド __`TARKOVTOOLS`__ 追加に伴い弾薬性能表示コマンド __`AMMO`__の仕様が一部変更されました。",
+    ],
+    "2.0.1:2021/05/07 17:00": [
+        "__`notification-general`__ において発言を行うと自動全体メンションをする様になりました。",
+        "機能改善会議(メンテナンス)中にbotに話しかけると怒る様になりました。",
+    ],
+    "2.0:2021/05/06 18:00": [
+        "武器一覧表示、各武器詳細表示コマンド __`WEAPON`__ __`武器名`__ の各種データを海外Wikiから取得する様に変更されました。",
+        "武器一覧表示、各武器詳細表示、マップ一覧表示、ボス一覧表示コマンドのレスポンス最適化。",
+        "ボイスチャンネル使用中のユーザがテキストチャンネルに書き込むとボイスチャンネル参加ユーザを自動メンションする様になりました。",
+    ],
+    "1.11:2021/04/22 22:10": [
+        "武器抽選コマンド __`RANDOMWEAPON`__ 追加に伴いマップ抽選コマンド ~~__`RANDOM`__~~ から __`RANDOMMAP`__ に変更されました。",
+        "ボス一覧表示コマンド __`BOSS`__ を追加しました。",
+    ],
+    "1.10.3:2021/04/20 18:35": [
+        "マップ抽選コマンド __`RANDOM`__ で発生していたデータ型キャスト不具合の修正を行いました。",
+        "タイムゾーン未指定による更新日時が正常に表示されていなかった問題の修正。",
+    ],
+    "1.10.2:2021/04/06 19:13": ["弾薬性能表示コマンド __`AMMO`__ の挙動が変更されました。"],
+    "1.10.1:2021/04/06 03:20": [
+        "機能改善に伴いタスク一覧表示コマンドが ~~__`TASK`__~~  から ディーラー一覧表示コマンドの __`DEALER`__ に統合されました。"
+    ],
+    "1.10:2021/04/02 12:00": ["アーマの早見表表示コマンド __`ARMOR`__ が仮実装されました。"],
+    "1.9.1:2021/03/30 01:35": [
+        "マップ一覧表示コマンド __`MAP`__ の挙動を大幅に改良しました。",
+        "類似コマンドが存在し、かつ類似コマンドが1つの場合該当コマンドを実行するようになるようになりました。",
+        "使用可能コマンド一覧表示コマンド __`HELP`__ を見やすいように表示方法改善しました。",
+    ],
+    "1.9:2021/03/23 18:00": [
+        "各マップ情報表示コマンドの挙動を大幅に改良しました。",
+        "海外公式wiki表示コマンド __`ENWIKI`__ 追加に伴い日本EFTWiki表示コマンドの呼び出しコマンドが 　~~__`WIKITOP`__~~ から __`JAWIKI`__ に変更されました。",
+    ],
+    "1.8.1:2021/03/22 23:00": ["内部処理エラーによる __`WEAPON`__ コマンドの修正"],
+    "1.8:2021/03/19": [
+        "ビットコイン価格表示コマンド __`BTC`__ を追加しました。",
+        "メンテナンス関連のアナウンスがあった場合、テキストチャンネル __`escape-from-tarkov`__ に通知を送るようにしました。",
+    ],
+    "1.7:2021/03/17": ["現在時刻表示コマンド __`NOW`__ を追加しました。"],
+    "1.6:2021/03/15": ["フリーマーケット情報表示コマンド __`MARKET`__ を追加しました。"],
+    "1.5.2:2021/03/14": ["ボイスチャンネル開始、終了時の通知挙動の修正をしました。 ※最終修正"],
+    "1.5.1:2021/03/11": ["ボイスチャンネル開始、終了時の通知挙動の修正をしました。"],
+    "1.5:2021/03/09": ["BOTがボイスチャンネル開始時に通知をしてくれるようになりました。"],
+    "1.4:2021/03/06": ["BOTが公式アナウンスを自動的に翻訳してくれるようになりました。"],
+    "1.3.2.1:2021/03/04": ["BOTがよりフレンドリーな返答をするようになりました。"],
+    "1.3.2:2021/02/25": ["早見表表示コマンドに2件早見表を追加しました。"],
+    "1.3.1:2021/02/23": [f"最初の文字が __`{COMMAND_PREFIX}`__ 以外の文字の場合コマンドとして認識しないように修正。"],
+    "1.3:2021/02/10": [
+        "タスク一覧表示コマンド __`TASK`__ を追加しました。",
+        "弾薬性能表示コマンド __`AMMO`__ を追加しました。",
+    ],
+    "1.2.2:2021/02/08": ["一部コマンドのレスポンス内容の変更を行いました。"],
+    "1.2.1:2021/02/05": ["一部コマンドを除いたレスポンスの向上"],
+    "1.2:2021/02/04": [
+        "入力されたコマンドに近いコマンドを表示するヒント機能を追加しました。",
+        "各武器名を入力することで入力された武器の詳細情報のみにアクセスできるようになりました。",
+        "BOTのソースコードにアクセスできるコマンド __`SOURCE`__ を追加しました。",
+    ],
+    "1.1:2021/02/02": [
+        "更新履歴表示コマンド __`PATCH`__ を追加しました。",
+        "武器一覧表示コマンドの挙動を大幅に変更しました。",
+        "早見表表示コマンドに料金表を追加しました。",
+    ],
+    "1.0:2021/01/30": ["早見表表示コマンド __`CHART`__ を追加しました。", "早見表コマンドにアイテム早見表を追加しました。"],
+}
 
 try:
     from local_settings import *
@@ -276,15 +468,18 @@ client = discord.Client(intents=discord.Intents.all())
 tree = discord.app_commands.CommandTree(client)
 
 class EscapeFromTarkovV2Bot(commands.Bot):
-    def __init__(self, LOCAL_HOST, TRADER_LIST, BOSS_LIST):
+    def __init__(self, COMMAND_PREFIX, LOCAL_HOST, TRADER_LIST, BOSS_LIST, COMMAND_LIST, NOTIFICATION_INFORMATION, PATCH_NOTES):
         super().__init__(
-            command_prefix="/",
+            command_prefix=COMMAND_PREFIX,
             intents=discord.Intents.all(),
             application_id=APPLICATION_ID
         )
         self.LOCAL_HOST = LOCAL_HOST
         self.TRADER_LIST = TRADER_LIST
         self.BOSS_LIST = BOSS_LIST
+        self.COMMAND_LIST=COMMAND_LIST,
+        self.NOTIFICATION_INFORMATION=NOTIFICATION_INFORMATION,
+        self.PATCH_NOTES=PATCH_NOTES
         self.develop_mode = False
         self.enrage_counter = 0
         self.help_embed = None
@@ -292,7 +487,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         self.disability = False
         self.server_status = ServerStatusCode.SUCCESS
         self.executable_command = {
-            name: False for name in ["map", "character", "task", "weapon", "ammo", ]
+            name: False for name in CommandCategory.COMMAND_CATEGORY_MAP.keys()
         }
         self.executable_command["reload"] = True
 
@@ -365,12 +560,8 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         if category=="all" or category=="weapon":
             try:
                 self.get_weapons_name, self.get_weapons_detail = get_weapons_data()
-                self.executable_command["weapon"] = False
-            except: pass
-        if category=="all" or category=="ammo":
-            try:
                 self.ammo_list = get_ammo_data()
-                self.executable_command["ammo"] = True
+                self.executable_command["weapon"] = True
             except: pass
         self.update_timestamp = datetime.datetime.fromtimestamp(dt.now(JST).timestamp())
         await self.set_status()
@@ -385,7 +576,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
             activity=discord.Activity(name=activity_name, type=activity_type),
         )
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=10)
     async def change_status(self) -> None:
         if self.disability: return
         if self.LOCAL_HOST or self.develop_mode: return
@@ -398,7 +589,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         ).upper()
         await self.set_status(activity_name=f"マップ{map}")
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=1)
     async def server_status_checker(self):
         (self.server_status, context) = get_server_status(previous_status=self.server_status)
         if context is None: return
@@ -430,7 +621,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                 name=f"{interaction.command.binding.qualified_name}カテゴリのデータが読み込まれておりません。",
                 value=f"{interaction.command.binding.qualified_name}カテゴリのデータが読み込まれておりません。",
             )
-        await self.send_deletable_message(interaction, embed=embed)
+            await self.send_deletable_message(interaction, embed=embed)
 
     async def on_app_command_completion(self, interaction, command):
         if command.name!="help" and self.help_embed:
@@ -659,10 +850,12 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                     await message.delete()
 
 bot = EscapeFromTarkovV2Bot(
+    COMMAND_PREFIX=COMMAND_PREFIX,
     LOCAL_HOST=LOCAL_HOST,
     TRADER_LIST=TRADER_LIST,
     BOSS_LIST=BOSS_LIST,
+    COMMAND_LIST=COMMAND_LIST,
+    NOTIFICATION_INFORMATION=NOTIFICATION_INFORMATION,
+    PATCH_NOTES=PATCH_NOTES
 )
 bot.run(BOT_TOKEN)
-
-print("END")

@@ -23,7 +23,7 @@ class Other(commands.Cog):
                 color=0xFF0000,
                 timestamp=datetime.datetime.utcfromtimestamp(
                     dt.strptime(
-                        list(self.bot.patchNotes.keys())[0].split(":", 1)[1] + "+09:00",
+                        list(self.bot.PATCH_NOTES.keys())[0].split(":", 1)[1] + "+09:00",
                         "%Y/%m/%d %H:%M%z",
                     ).timestamp()
                 ),
@@ -46,12 +46,12 @@ class Other(commands.Cog):
             title="更新履歴一覧",
             timestamp=datetime.datetime.utcfromtimestamp(
                 dt.strptime(
-                    list(self.bot.patchNotes.keys())[0].split(":", 1)[1] + "+09:00",
+                    list(self.bot.PATCH_NOTES.keys())[0].split(":", 1)[1] + "+09:00",
                     "%Y/%m/%d %H:%M%z",
                 ).timestamp()
             ),
         )
-        for index, values in self.bot.patchNotes.items():
+        for index, values in self.bot.PATCH_NOTES.items():
             text = ""
             for N, value in enumerate(values):
                 text += f"{N+1}. {value}\n"

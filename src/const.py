@@ -52,15 +52,13 @@ class CommandCategory:
     CHARACTER = "character"
     TASK = "task"
     WEAPON = "weapon"
-    AMMO = "ammo"
     ALL = "all"
 
     COMMAND_CATEGORY_MAP = {
         "map": "マップ",
         "character": "キャラクター(トレーダー・ボス)",
         "task": "タスク",
-        "weapon": "武器",
-        "ammo": "弾薬",
+        "weapon": "武器・弾薬",
         "all": "全て",
     }
 

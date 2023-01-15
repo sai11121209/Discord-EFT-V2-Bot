@@ -20,8 +20,7 @@ class Reload(commands.Cog):
             Choice(name="マップ", value="map"),
             Choice(name="キャラクター(トレーダー・ボス)", value="character"),
             Choice(name="タスク", value="task"),
-            Choice(name="武器", value="weapon"),
-            Choice(name="弾薬", value="ammo"),
+            Choice(name="武器・弾薬", value="weapon"),
             Choice(name="全て", value="all")
         ]
     )
