@@ -15,13 +15,17 @@ class Task(commands.Cog):
         if name:
             if type(name) == list:
                 name = name[0]
+            try:
+                task_data = [
+                    value
+                    for values in self.bot.tasks_detail.values()
+                    for value in values["tasks"]
+                    if value["questName"].lower().replace(" ", "") == name
+                ][0]
+            # except IndexError:
+            except:
+                await self.bot.on_command_error(intrtaction, commands.CommandNotFound("task"))
             info_str = ""
-            task_data = [
-                value
-                for values in self.bot.get_tasks_detail.values()
-                for value in values["tasks"]
-                if value["questName"].lower().replace(" ", "") == name
-            ][0]
             task_image_embeds = []
             for col_name, values in task_data.items():
                 if col_name == "dealerName":

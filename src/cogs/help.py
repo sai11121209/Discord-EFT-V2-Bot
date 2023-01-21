@@ -12,6 +12,7 @@ class Help(commands.Cog):
 
     @app_commands.command(name="help", description="使用可能コマンド表示")
     async def help(self, intrtaction: discord.Integration) -> None:
+        await intrtaction.response.defer(thinking=True)
         embed = discord.Embed(
             title="EFT(Escape from Tarkov) Wiki Bot使用可能コマンド一覧だよ!",
             description=f"```Prefix:{self.bot.command_prefix}```",
@@ -24,7 +25,7 @@ class Help(commands.Cog):
             )
 
         )
-        for command in self.bot._BotBase__tree.get_commands():
+        for command in self.bot.tree.get_commands():
             try:
                 if command.name == "weapon":
                     text = f"```{self.bot.command_prefix}{command.name}```"

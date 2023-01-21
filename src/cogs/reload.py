@@ -25,6 +25,7 @@ class Reload(commands.Cog):
         ]
     )
     async def reload(self, intrtaction: discord.Integration, category: str) -> None:
+        await intrtaction.response.defer(thinking=True)
         await self.bot.data_reload(category)
         embed = discord.Embed(
             title="データのリロード完了",

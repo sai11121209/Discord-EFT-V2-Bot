@@ -33,7 +33,7 @@ class Random(commands.Cog):
                 description=f"{intrtaction.user.mention}が使用する武器は...",
                 color=0x2ECC69,
             )
-            weapon = r.choice(self.bot.get_weapons_name)
+            weapon = r.choice(self.bot.weapons_name)
             embed.add_field(name="WEAPON", value=weapon, inline=False)
         await self.bot.send_deletable_message(intrtaction, embed=embed)
 

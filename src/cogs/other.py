@@ -16,7 +16,7 @@ class Other(commands.Cog):
 
     @app_commands.command(name="patch", description="パッチノート表示")
     async def patch(self, intrtaction: discord.Integration) -> None:
-        if self.bot.notificationInformation:
+        if self.bot.NOTIFICATION_INFORMATION:
             embed = discord.Embed(
                 title="近日大規模なアップデートが行われる予定です。",
                 description="近日行われるアップデートでは以下の機能が変更又は追加される予定です。\n※アップデートに伴い現在テストバージョンでの処理となっているため**一部又は全体の動作が不安定**になる恐れがあります。",
@@ -29,7 +29,7 @@ class Other(commands.Cog):
                 ),
             )
             text = ""
-            for index, values in self.bot.notificationInformation.items():
+            for index, values in self.bot.NOTIFICATION_INFORMATION.items():
                 for N, value in enumerate(values):
                     text += f"{N+1}. {value}\n"
             embed.add_field(
@@ -51,14 +51,14 @@ class Other(commands.Cog):
                 ).timestamp()
             ),
         )
-        for index, values in self.bot.PATCH_NOTES.items():
+        for index, values in list(self.bot.PATCH_NOTES.items())[:1]:
             text = ""
             for N, value in enumerate(values):
-                text += f"{N+1}. {value}\n"
+                text += f"{N+1}. {value}\n\n"
             embed.add_field(
                 name=f"version: {index.split(':', 1)[0]}", value=text, inline=False
             )
-        # embed.set_thumbnail(url=client.get_user(803770349908131850).avatar_url)
+        embed.set_thumbnail(url=self.bot.application.owner.avatar.url)
         embed.set_author(
             name="EFT(Escape from Tarkov) Wiki Bot",
             url="https://github.com/sai11121209",

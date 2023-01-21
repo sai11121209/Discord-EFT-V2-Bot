@@ -61,12 +61,15 @@ class Weapon(commands.Cog):
                     name = name[0]
                 info_str = ""
                 fix_text = name.upper().replace(" ", "")
-                weapon_data = [
-                    value
-                    for values in self.bot.get_weapons_detail.values()
-                    for value in values
-                    if value["名前"].upper().replace(" ", "") == fix_text
-                ][0]
+                try:
+                    weapon_data = [
+                        value
+                        for values in self.bot.weapons_detail.values()
+                        for value in values
+                        if value["名前"].upper().replace(" ", "") == fix_text
+                    ][0]
+                except IndexError:
+                    await self.bot.on_command_error(intrtaction, commands.CommandNotFound("weapon"))
                 for col_name, value in weapon_data.items():
                     if col_name in [
                         "名前",
@@ -129,9 +132,9 @@ class Weapon(commands.Cog):
 
             else:
                 embeds = []
-                for n, (index, values) in enumerate(self.bot.get_weapons_detail.items()):
+                for n, (index, values) in enumerate(self.bot.weapons_detail.items()):
                     embed = discord.Embed(
-                        title=f"武器一覧({n+1}/{len(self.bot.get_weapons_detail)})",
+                        title=f"武器一覧({n+1}/{len(self.bot.weapons_detail)})",
                         url=get_url(Url.EN_WIKI, "Weapons"),
                         timestamp=self.bot.update_timestamp,
                     )
@@ -155,9 +158,6 @@ class Weapon(commands.Cog):
         except:
             # TODO　エラー処理
             pass
-            # await self.bot.on_slash_command_error(
-            #     ctx, commands.CommandNotFound("weapon")
-            # )
 
     @app_commands.command(name="ammo", description="弾薬性能表示")
     @app_commands.describe(name="弾薬名を指定します。")

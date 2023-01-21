@@ -1,9 +1,11 @@
 import discord
-from discord import app_commands
+from discord import app_commands, ButtonStyle
 from discord.ext import commands
 from discord.app_commands import Choice
 from util import get_requests_response, get_beautiful_soup_object, get_translate_text
 from const import Url
+from cogs.button import Button
+from cogs.select_menu import SelectMenu
 
 
 class Map(commands.Cog):
@@ -30,7 +32,7 @@ class Map(commands.Cog):
             Choice(name="TOWN", value="TOWN"),
         ]
     )
-    async def map(self, intrtaction: discord.Integration, name: str) -> None:
+    async def map(self, intrtaction:discord.Integration, name:str=None) -> None:
         release_text = ""
         released_color = 0x2ECC69
         unreleased_color = 0xFF0000
@@ -84,52 +86,47 @@ class Map(commands.Cog):
                         release_text = "**未実装マップ**\n\n"
                         color = unreleased_color
 
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=text,
                 description=release_text + message + features_text,
                 color=color,
                 url=f"{Url.EN_WIKI}{self.bot.maps_detail[name]['MapUrl']}",
-                timestamp=self.bot.update_timestamp,
             )
             embed.set_image(url=self.bot.maps_detail[name]["Banner"])
-            embed.set_footer(text=f"Source: The Official Escape from Tarkov Wiki 最終更新")
             await self.bot.send_deletable_message(intrtaction, embed=embed)
             map_data = self.bot.maps_detail[name]["Images"]
             n = 1
-            for key, value in map_data.items():
-                embed = discord.Embed(
-                    title=f"({n}/{len(map_data)}){text}",
-                    description=f"[{key}]({value})",
-                    color=color,
-                    url=f"{Url.EN_WIKI}{self.bot.maps_detail[name]['MapUrl']}",
-                    timestamp=self.bot.update_timestamp,
-                )
-                embed.set_image(url=value)
-                embed.set_footer(
-                    text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
-                )
-                await self.bot.send_deletable_message(intrtaction, embed=embed)
-                n += 1
+            embeds = []
+            file = None
             if name == "RESERVE":
                 file = discord.File(f"../imgs/map/reserve/1.jpg")
-                embed = discord.Embed(
-                    title=f"({n}/{len(map_data)}){text}",
+                embed = self.bot.create_base_embed(
+                    title=f"{name} MAP",
                     color=color,
                     url=f"{Url.EN_WIKI}{self.bot.maps_detail[name]['MapUrl']}",
-                    timestamp=self.bot.update_timestamp,
                 )
                 embed.set_image(url=f"attachment://1.jpg")
-                embed.set_footer(
-                    text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
+                embeds.append(embed)
+            for key, value in map_data.items():
+                embed = self.bot.create_base_embed(
+                    title=f"{name} MAP",
+                    color=color,
+                    url=f"{Url.EN_WIKI}{self.bot.maps_detail[name]['MapUrl']}",
                 )
-                await self.bot.send_deletable_message(intrtaction, embed=embed)
+                embed.set_image(url=value)
+                embeds.append(embed)
+                n += 1
+            await self.bot.send_deletable_message(intrtaction, embeds=embeds, file=file)
         else:
-            embed = discord.Embed(
-                title="マップ",
+            embed = self.bot.create_base_embed(
+                title="MAP LIST",
                 url=f"{Url.EN_WIKI}Map",
                 color=0x2ECC69,
-                timestamp=self.bot.update_timestamp,
+                thumbnail="https://static.wikia.nocookie.net/escapefromtarkov_gamepedia/images/4/43/Map.png/revision/latest?cb=20200619104902&format=original",
+                footer=f"{self.bot.command_prefix}マップ名で各マップの地形情報を表示できるよー。 例: {self.bot.command_prefix}reserve \n Source: The Official Escape from Tarkov Wiki 最終更新"
             )
+            view = discord.ui.View()
+            select_menu = []
             for map, values in self.bot.maps_detail.items():
                 text = ""
                 for key, value in values.items():
@@ -158,18 +155,14 @@ class Map(commands.Cog):
                             else:
                                 text += f"__[{v}]({Url.EN_WIKI}{v})__ "
                         text += "\n"
-                text += f"**詳細情報**: __[JA]({self.bot.jaWikiUrl}{map})__ / __[EN]({Url.EN_WIKI}{self.bot.maps_detail[map]['MapUrl']})__\n"
-                if values["Release State"] == "Released":
+                text += f"**詳細情報**: __[JA]({Url.JA_WIKI}{map})__ / __[EN]({Url.EN_WIKI}{self.bot.maps_detail[map]['MapUrl']})__\n"
+                select_menu.append(values["Name"].upper())
+                if values.get("Release state", "Released") == "Released":
                     embed.add_field(name=values["Name"].upper(), value=text)
                 else:
                     embed.add_field(name=map, value=f"~~{text}~~")
-            embed.set_thumbnail(
-                url="https://static.wikia.nocookie.net/escapefromtarkov_gamepedia/images/4/43/Map.png/revision/latest?cb=20200619104902&format=original"
-            )
-            embed.set_footer(
-                text=f"{self.bot.command_prefix}マップ名で各マップの地形情報を表示できるよー。 例: {self.bot.command_prefix}reserve \n Source: The Official Escape from Tarkov Wiki 最終更新"
-            )
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+            view.add_item(SelectMenu(intrtaction.command.name, select_menu, "地図を出力したいマップを選んでください"))
+            await self.bot.send_deletable_message(intrtaction, embed=embed, view=view)
 
 # マップ画像取得
 def GetMapImage(map_name):
