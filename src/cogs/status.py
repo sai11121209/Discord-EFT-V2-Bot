@@ -44,7 +44,7 @@ class Status(commands.Cog):
                 text = ""
                 for value in values:
                     text += (
-                        f"> **{value['name']}** : {ServerStatusCode.SERVER_STATUS_CODE_MAP.get(str(values['status']))}\n"
+                        f"> **{value['name']}** : {ServerStatusCode.SERVER_STATUS_CODE_MAP.get(str(value['status']))}\n"
                     )
                 embed.add_field(
                     name="各種サービスステータス",

@@ -10,6 +10,6 @@ class SelectMenu(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         command_name, command_option = self.values[0].split(":")[:2]
         command = interaction._client.tree.get_command(command_name)
-        cogs = interaction._client._BotBase__cogs.get(command_name.capitalize())
+        cogs = interaction._client.cogs.get(command_name.capitalize())
         await interaction.response.defer(thinking=True)
         await command.callback(cogs, interaction, command_option)

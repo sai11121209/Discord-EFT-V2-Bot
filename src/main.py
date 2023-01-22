@@ -5,8 +5,9 @@ import datetime
 from datetime import datetime as dt
 import discord
 from discord.ext import tasks, commands
-from const import Url, ChannelCode, AuthorCode, ServerStatusCode, CommandCategory
+from const import Url, ChannelCode, AuthorCode, ServerStatusCode, CommandCategory, CommandCategory
 from cogs.button import Button, DeleteButton
+from cogs.select_menu import SelectMenu
 import difflib
 import random as rand
 
@@ -36,7 +37,6 @@ JST = datetime.timezone(datetime.timedelta(hours=9) , 'JST')
 COMMAND_PREFIX = "/"
 
 INITIAL_EXTENSIONS = [
-    "cogs.test",
     "cogs.develop",
     "cogs.character",
     "cogs.chart",
@@ -50,18 +50,6 @@ INITIAL_EXTENSIONS = [
     "cogs.weapon",
     "cogs.help",
     "cogs.reload",
-]
-EMOJI_LIST = [
-    "1️⃣",
-    "2️⃣",
-    "3️⃣",
-    "4️⃣",
-    "5️⃣",
-    "6️⃣",
-    "7️⃣",
-    "8️⃣",
-    "9️⃣",
-    "🔟",
 ]
 TRADER_LIST = {
     "Prapor": {
@@ -309,7 +297,7 @@ NOTIFICATION_INFORMATION = {}
 # 上に追記していくこと
 PATCH_NOTES = {
     "5.0:2023/01/20 00:00": [
-        "従来コードのリファクタリングを行い新規コードに移植を行いました。",
+        "コードのリプレイス、リファクタリングを行いました。",
         "ランタイムをPython3.8からPython3.11に移行、これによりプログラム全体の処理速度が向上いたします。",
         "discord.py v2.xに対応。これにより柔軟に新機能を追加することが可能になります。",
         "プログラム再起動を行わず最新のwikiデータを取得するコマンド _`RELOAD`_ を追加しました。",
@@ -497,14 +485,13 @@ client = discord.Client(intents=discord.Intents.all())
 tree = discord.app_commands.CommandTree(client)
 
 class EscapeFromTarkovV2Bot(commands.Bot):
-    def __init__(self, COMMAND_PREFIX, LOCAL_HOST, EMOJI_LIST, TRADER_LIST, BOSS_LIST, COMMAND_LIST, NOTIFICATION_INFORMATION, PATCH_NOTES):
+    def __init__(self, COMMAND_PREFIX, LOCAL_HOST, TRADER_LIST, BOSS_LIST, COMMAND_LIST, NOTIFICATION_INFORMATION, PATCH_NOTES):
         super().__init__(
             command_prefix=COMMAND_PREFIX,
             intents=discord.Intents.all(),
             application_id=APPLICATION_ID
         )
         self.LOCAL_HOST = LOCAL_HOST
-        self.EMOJI_LIST = EMOJI_LIST
         self.TRADER_LIST = TRADER_LIST
         self.BOSS_LIST = BOSS_LIST
         self.COMMAND_LIST=COMMAND_LIST
@@ -566,12 +553,11 @@ class EscapeFromTarkovV2Bot(commands.Bot):
     async def setup_hook(self) -> None:
         """スラッシュコマンド読み込み反映処理"""
         [await self.load_extension(cog) for cog in INITIAL_EXTENSIONS]
-        await bot.tree.sync()
+        # await bot.tree.sync()
 
     async def on_ready(self) -> None:
         load_start_time = time.time()
         await self.data_reload(category="map")
-        logging.info("Bot Application Start")
         if self.LOCAL_HOST: return
         channel = self.get_channel(ChannelCode.EXCEPTION_LOG)
         elapsed_time = time.time() - load_start_time
@@ -593,6 +579,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         await channel.send(embed=embed)
         self.change_status.start()
         self.server_status_checker.start()
+        logging.info("Bot Application Start")
 
     async def data_reload(self, category: str="all"):
         await self.set_status(
@@ -670,15 +657,17 @@ class EscapeFromTarkovV2Bot(commands.Bot):
     async def on_interaction(self, interaction):
         # 過去に生成したのボタンが押された場合
         if not interaction.command: return await interaction.message.delete()
-        if self.executable_command.get(interaction.command.binding.qualified_name.lower(), True): await interaction.response.defer(thinking=True)
+        await interaction.response.defer(thinking=True)
+        if self.executable_command.get(interaction.command.binding.qualified_name.lower(), True): return
         else:
             embed = self.create_base_embed(
                 title="Wikiデータ読み込みエラー",
-                color=0x808080,
+                color=discord.Color.red(),
+                footer=""
             )
             embed.add_field(
-                name=f"{interaction.command.binding.qualified_name}カテゴリのデータが読み込まれておりません。",
-                value=f"{interaction.command.binding.qualified_name}カテゴリのデータが読み込まれておりません。",
+                name=f"{interaction.command.binding.qualified_name}コマンド呼び出し失敗",
+                value=f"{CommandCategory.COMMAND_CATEGORY_MAP.get(interaction.command.binding.qualified_name.lower())}カテゴリのデータが読み込まれておりません。",
             )
             await self.send_deletable_message(interaction, embed=embed)
 
@@ -720,19 +709,8 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         except:
             pass
 
-    async def on_raw_reaction_add(self, payload):
-        user = await self.fetch_user(payload.user_id)
-        if user.bot or self.develop_mode: return
-        try:
-            channel = await self.fetch_channel(payload.channel_id)
-            message = await channel.fetch_message(payload.message_id)
-            if payload.emoji.name == "❌" and message.author.bot and message.channel.id != ChannelCode.README: await message.delete()
-        except:
-            pass
-
-    # TODO on_slash_command_error
-    async def on_command_error(self, intrtaction, ex):
-        if isinstance(ex, commands.CommandNotFound):
+    async def on_command_error(self, intrtaction, error):
+        if isinstance(error, commands.CommandNotFound):
             hit_commands = []
             if intrtaction.command.name == "map":
                 hit_commands += [map.lower() for map in self.maps_detail]
@@ -749,91 +727,70 @@ class EscapeFromTarkovV2Bot(commands.Bot):
             elif intrtaction.command.name == "task":
                 hit_commands += [task_name.lower() for task_name in self.tasks_name]
             # コマンドの予測変換
-            self.hints = {
-                self.EMOJI_LIST[n]: hint
-                for n, hint in enumerate(
-                    [
-                        command
-                        for command in hit_commands
-                        if difflib.SequenceMatcher(
-                            None,
-                            intrtaction.namespace.name.lower(),
-                            self.command_prefix + command,
-                        ).ratio()
-                        >= 0.59
-                    ][:10]
-                )
-            }
-            if intrtaction.namespace.name.lower() in self.hints.values():
-                self.hints = {"1️⃣": intrtaction.namespace.name.lower()}
+            self.hints = [
+                hint
+                for hint in [
+                    command
+                    for command in hit_commands
+                    if difflib.SequenceMatcher(
+                        None,
+                        intrtaction.namespace.name.lower(),
+                        self.command_prefix + command,
+                    ).ratio()
+                    >= 0.59
+                ]
+            ]
+            if intrtaction.namespace.name.lower() in self.hints:
+                self.hints = [intrtaction.namespace.name.lower()]
             if len(self.hints) > 0:
-                embed = discord.Embed(
-                    title="Hint", description="もしかして以下のコマンドじゃね?", color=0xFF0000
+                embed = self.create_base_embed(
+                    title="Hint",
+                    description="もしかして以下のコマンドじゃね?",
+                    color=0xFF0000,
+                    footer="これ以外に使えるコマンドは /help で確認できるよ!",
                 )
                 fix_hints = self.hints
-                for emoji, hint in self.hints.items():
-                    if hint in [map.lower() for map in self.map_list]:
-                        fix_hints[emoji] = f"map {hint}"
-                    elif hint in [
-                        weapon_name.lower() for weapon_name in self.weapons_name
-                    ]:
-                        fix_hints[emoji] = f"weapon {hint}"
-                    elif hint in [ammo for ammo in self.ammo_list.keys()]:
-                        fix_hints[emoji] = f"ammo {hint}"
-                    elif hint in [
-                        a["Name"]
-                        for ammo in self.ammo_list.values()
-                        for a in ammo
-                    ]:
-                        fix_hints[emoji] = f"ammo {hint}"
-                    elif hint in [task_name.lower() for task_name in self.tasks_name]:
-                        fix_hints[emoji] = f"task {hint}"
+                view = discord.ui.View()
+                select_menu = []
+                for hint in self.hints:
                     embed.add_field(
-                        name=emoji, value=f"__`{self.command_prefix}{fix_hints[emoji]}`__"
+                        name=hint, value=f"__`{self.command_prefix}{intrtaction.command.name} {hint}`__"
                     )
                 self.hints = fix_hints
                 if len(self.hints) == 1:
-                    if len(self.hints["1️⃣"].split(" ")) != 1:
-                        await self.slash.commands[
-                            self.hints["1️⃣"].split(" ")[0]
-                        ].invoke(
-                            intrtaction,
-                            self.hints["1️⃣"].split(" ")[1:],
-                        )
-                    else:
-                        await self.slash.commands[self.hints["1️⃣"]].invoke(
-                            intrtaction,
-                        )
+                    command = self.tree.get_command(intrtaction.command.name)
+                    cogs = self.cogs.get(intrtaction.command.name.capitalize())
+                    await intrtaction.response.defer(thinking=True)
+                    await command.callback(cogs, intrtaction,  self.hints[0])
                 else:
-                    embed.set_footer(text="これ以外に使えるコマンドは /help で確認できるよ!")
-                    self.hints_embed = await self.send_deletable_message(intrtaction, embed=embed)
                     try:
-                        for emoji in self.hints.keys():
-                            await self.hints_embed.add_reaction(emoji)
-                        await self.hints_embed.add_reaction("❌")
+                        for command in self.hints:
+                            select_menu.append(command)
                     except:
                         pass
+                    view.add_item(SelectMenu(intrtaction.command.name, select_menu, "地図を出力したいマップを選んでください"))
+                    self.hints_embed = await self.send_deletable_message(intrtaction, embed=embed, view=view)
             else:
-                message = f"入力されたコマンド {intrtaction.command} {intrtaction.namespace.name.lower()} は見つからなかったよ...ごめんね。\n"
+                message = f"入力されたコマンド {intrtaction.command.name} {intrtaction.namespace.name.lower()} は見つからなかったよ...ごめんね。\n"
                 message += f"これ以外に使えるコマンドは {self.command_prefix}help で確認できるよ!"
                 await self.send_deletable_message(intrtaction, message)
-        elif isinstance(ex, commands.ExtensionError):
+        elif isinstance(error, commands.ExtensionError):
             pass
-        elif isinstance(ex, commands.MissingRole):
+        elif isinstance(error, commands.MissingRole):
             pass
         else:
             # exception-log チャンネル
-            channel = self.get_channel(846977129211101206)
-            errorTime = dt.now(pytz.timezone("Asia/Tokyo"))
-            embed = discord.Embed(
-                title=f"ErrorLog ({errorTime.strftime('%Y%m%d%H%M%S')})",
-                description=f"ご迷惑をおかけしております。コマンド実行中において例外処理が発生しました。\nこのエラーログは sai11121209 に送信されています。 {intrtaction.author.mention} バグを発見してくれてありがとう!",
+            channel = self.get_channel(ChannelCode.EXCEPTION_LOG)
+            error_time = dt.now(JST)
+            embed = self.create_base_embed(
+                title=f"ErrorLog ({error_time.strftime('%Y%m%d%H%M%S')})",
+                description=f"ご迷惑をおかけしております。コマンド実行中において例外処理が発生しました。\nこのエラーログは {self.application.owner.mention} に送信されています。 {intrtaction.user.mention} バグを発見してくれてありがとう!",
                 color=0xFF0000,
-                timestamp=datetime.datetime.fromtimestamp(dt.now(JST).timestamp()),
+                footer="",
             )
             embed.add_field(
                 name="Time",
-                value=f"```{errorTime.strftime('%Y/%m/%d %H:%M:%S')}```",
+                value=f"```{error_time.strftime('%Y/%m/%d %H:%M:%S')}```",
                 inline=False,
             )
             embed.add_field(
@@ -849,20 +806,18 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                 name="ChannelName", value=f"```{intrtaction.channel.name}```", inline=False
             )
             embed.add_field(
-                name="UserId", value=f"```{intrtaction.author.id}```", inline=False)
+                name="UserId", value=f"```{intrtaction.user.id}```", inline=False)
             embed.add_field(
-                name="UserName", value=f"```{intrtaction.author.name}```", inline=False
+                name="UserName", value=f"```{intrtaction.user.name}```", inline=False
             )
             embed.add_field(
-                name="ErrorCommand", value=f"```{intrtaction.command}```", inline=False
+                name="ErrorCommand", value=f"```{intrtaction.command.name}```", inline=False
             )
-            embed.add_field(name="ErrorDetails",
-                            value=f"```{ex}```", inline=False)
-            embed.set_footer(text=f"{intrtaction.me.name}")
+            embed.add_field(name="ErrorCommandOption",
+                            value=f"```{error}```" if error.args else "```None```", inline=False)
             await channel.send(embed=embed)
             if self.LOCAL_HOST == False:
-                sendMessage = await intrtaction.send(embed=embed)
-                await sendMessage.add_reaction("❌")
+                await self.send_deletable_message(intrtaction, embed=embed)
 
     async def on_message(self, message):
         if self.LOCAL_HOST or not message.content: return
@@ -908,7 +863,6 @@ class EscapeFromTarkovV2Bot(commands.Bot):
 bot = EscapeFromTarkovV2Bot(
     COMMAND_PREFIX=COMMAND_PREFIX,
     LOCAL_HOST=LOCAL_HOST,
-    EMOJI_LIST=EMOJI_LIST,
     TRADER_LIST=TRADER_LIST,
     BOSS_LIST=BOSS_LIST,
     COMMAND_LIST=COMMAND_LIST,

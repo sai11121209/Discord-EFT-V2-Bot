@@ -11,7 +11,7 @@ class Task(commands.Cog):
 
     @app_commands.command(name="task", description="タスク一覧表示コマンド")
     @app_commands.describe(name="名前")
-    async def task(self, intrtaction: discord.Integration, name: str) -> None:
+    async def task(self, intrtaction:discord.Integration, name:str=None) -> None:
         if name:
             if type(name) == list:
                 name = name[0]
@@ -22,16 +22,15 @@ class Task(commands.Cog):
                     for value in values["tasks"]
                     if value["questName"].lower().replace(" ", "") == name
                 ][0]
-            # except IndexError:
             except:
-                await self.bot.on_command_error(intrtaction, commands.CommandNotFound("task"))
+                return await self.bot.on_command_error(intrtaction, commands.CommandNotFound("task"))
             info_str = ""
-            task_image_embeds = []
+            embeds = []
             for col_name, values in task_data.items():
                 if col_name == "dealerName":
                     info_str += f"**ディーラー**: __[{task_data[col_name]}]({Url.EN_WIKI}{task_data['dealerUrl']})__"
                 elif col_name == "type":
-                    info_str += f"\n**タイプ**: __{task_data[col_name]}__"
+                    info_str += f"\n*タイプ**: __{task_data[col_name]}__"
                 elif col_name == "objectives":
                     info_str += f"\n**目的**:"
                     for objective in values:
@@ -110,62 +109,42 @@ class Task(commands.Cog):
                             )
                             info_str += f"\n・__{hyper_text}__"
                 elif col_name == "taskImage":
-                    for n, (image_name, image_url) in enumerate(values.items()):
-                        embed = discord.Embed(
-                            title=f"({n + 1}/{len(values)}){task_data['questName']}",
+                    for image_url in values.values():
+                        embed = self.bot.create_base_embed(
+                            title=f"{task_data['questName']} Image",
                             url=get_url(Url.EN_WIKI, task_data['questUrl']),
-                            description=f"{image_name}",
-                            timestamp=self.bot.update_timestamp,
+                            thumbnail=task_data["dealerThumbnail"]
                         )
-                        embed.set_footer(
-                            text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
-                        )
-                        embed.set_thumbnail(url=task_data["taskThumbnail"])
                         embed.set_image(url=image_url)
-                        task_image_embeds.append(embed)
-            embed = discord.Embed(
+                        embeds.append(embed)
+            embed = self.bot.create_base_embed(
                 title=task_data["questName"],
                 url=get_url(Url.EN_WIKI, task_data['questUrl']),
                 description=info_str,
-                timestamp=self.bot.update_timestamp,
+                thumbnail=task_data["dealerThumbnail"]
             )
-            embed.set_footer(
-                text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
-            )
-            embed.set_thumbnail(url=task_data["dealerThumbnail"])
             embed.set_image(url=task_data["taskThumbnail"])
             await self.bot.send_deletable_message(intrtaction, embed=embed)
-            for embed in task_image_embeds:
-                await self.bot.send_deletable_message(intrtaction, embed=embed)
+            await self.bot.send_deletable_message(intrtaction, embeds=embeds)
         else:
-            embeds = []
-            for n, (index, values) in enumerate(self.bot.task_data.items()):
-                embed = discord.Embed(
-                    title=f"タスク一覧({n+1}/{len(self.bot.task_data)})",
+            for n, (index, values) in enumerate(self.bot.tasks_detail.items()):
+                embed = self.bot.create_base_embed(
+                    title=f"タスク一覧({n+1}/{len(self.bot.tasks_detail)})",
                     url=get_url(Url.EN_WIKI, "Quests"),
-                    timestamp=self.bot.update_timestamp,
                 )
                 embed.add_field(
                     name=f"{index}",
-                    value=f"[{index} 海外Wikiリンク]({Url.EN_WIKI}{values['dealerUrl']})",
+                    value=f"[海外Wiki]({Url.EN_WIKI}{values['dealerUrl']})",
                     inline=False,
                 )
                 for value in values["tasks"]:
                     embed.add_field(
                         name=value["questName"],
-                        value=f"[{value['questName']} 海外Wikiリンク]({Url.EN_WIKI}{value['questUrl']})",
-                        inline=False,
+                        value=f"[海外Wiki]({Url.EN_WIKI}{value['questUrl']})",
+                        inline=True,
                     )
-                embed.set_thumbnail(url=value["dealerThumbnail"])
-                embed.set_footer(
-                    text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
-                )
-                embeds.append(embed)
-            for embed in embeds:
+                    embed.set_thumbnail(url=value["dealerThumbnail"])
                 await self.bot.send_deletable_message(intrtaction, embed=embed)
-        # except:
-            # TODO エラー処理
-            # await self.bot.on_slash_command_error(ctx, commands.CommandNotFound("task"))
 
 
 async def setup(bot: commands.Bot) -> None:

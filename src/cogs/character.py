@@ -11,11 +11,11 @@ class Character(commands.Cog):
 
     @app_commands.command(name="dealers", description="ディーラー一覧表示")
     async def dealers(self, intrtaction: discord.Integration) -> None:
-        embed = discord.Embed(
-            title="ディーラー",
-            url=get_url(Url.EN_WIKI, "Characters#Dealers"),
+        embed = self.bot.create_base_embed(
+            title="※最新情報ではありません。TBD ディーラー",
+            url=get_url(Url.EN_WIKI, "Dealers"),
             color=0x808080,
-            timestamp=self.bot.update_timestamp,
+            footer="トレーダー名をクリックすることで各トレーダータスクの詳細情報にアクセスできるよー。"
         )
         for trader_name in self.bot.trader_name:
             trader = self.bot.TRADER_LIST[trader_name]
@@ -40,30 +40,21 @@ class Character(commands.Cog):
             text += f"**通貨**:\n"
             for currencie in trader["currencies"]:
                 text += f"・__{currencie}__\n"
-                # trader_name.capitalize()
             text += f"**タスク情報**: [JA]({Url.JA_WIKI}{trader_name}タスク) / [EN]({Url.EN_WIKI}Quests)\n"
             text += f"**詳細情報**: [EN]({Url.EN_WIKI}{trader_name})"
             embed.add_field(
                 name=f"<:{trader_name}:{trader['stampid']}> {trader_name}",
                 value=text,
             )
-        embed.set_author(
-            name="EFT(Escape from Tarkov) Wiki Bot",
-            url="https://github.com/sai11121209",
-            icon_url=self.bot.user.avatar.url,
-        )
-        embed.set_footer(
-            text="トレーダー名をクリックすることで各トレーダータスクの詳細情報にアクセスできるよー。",
-        )
         await self.bot.send_deletable_message(intrtaction, embed=embed)
 
     @app_commands.command(name="boss", description="ボス一覧表示")
     async def boss(self, intrtaction: discord.Integration) -> None:
-        embed = discord.Embed(
-            title="ボス",
-            url=f"{Url.EN_WIKI}Characters#Bosses",
+        embed = self.bot.create_base_embed(
+            title="※最新情報ではありません。TBD ボス",
+            url=get_url(Url.EN_WIKI, "Bosses"),
             color=0x808080,
-            timestamp=self.bot.update_timestamp,
+            footer="ボス名をクリックすることで各ボスの詳細情報にアクセスできるよー。"
         )
         for boss_name in self.bot.boss_name:
             try:
@@ -100,14 +91,6 @@ class Character(commands.Cog):
                 )
             except:
                 pass
-        embed.set_author(
-            name="EFT(Escape from Tarkov) Wiki Bot",
-            url="https://github.com/sai11121209",
-            icon_url=self.bot.user.avatar.url,
-        )
-        embed.set_footer(
-            text="ボス名をクリックすることで各ボスの詳細情報にアクセスできるよー。",
-        )
         await self.bot.send_deletable_message(intrtaction, embed=embed)
 
 async def setup(bot: commands.Bot) -> None:

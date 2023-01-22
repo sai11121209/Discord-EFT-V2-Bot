@@ -69,7 +69,7 @@ class Weapon(commands.Cog):
                         if value["名前"].upper().replace(" ", "") == fix_text
                     ][0]
                 except IndexError:
-                    await self.bot.on_command_error(intrtaction, commands.CommandNotFound("weapon"))
+                    return await self.bot.on_command_error(intrtaction, commands.CommandNotFound("weapon"))
                 for col_name, value in weapon_data.items():
                     if col_name in [
                         "名前",
@@ -115,28 +115,26 @@ class Weapon(commands.Cog):
                         info_str += (
                             f"\n**{col_name.capitalize()}**: __{weapon_data[col_name]}__"
                         )
-                embed = discord.Embed(
+                embed = self.bot.create_base_embed(
                     title=weapon_data["名前"],
                     url=get_url(Url.EN_WIKI, weapon_data['weaponUrl']),
                     description=info_str,
-                    timestamp=self.bot.update_timestamp,
+                    thumbnail=weapon_data["imageUrl"]
                 )
-                embed.set_footer(
-                    text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
-                )
-                embed.set_thumbnail(url=weapon_data["imageUrl"])
                 if self.ammo_chart_check:
                     embed.set_image(url="attachment://ammo.png")
                     await self.bot.send_deletable_message(intrtaction, embed=embed, file=self.file)
-                    os.remove("ammo.png")
+                    try:
+                        os.remove("ammo.png")
+                    except PermissionError:
+                        pass
 
             else:
                 embeds = []
                 for n, (index, values) in enumerate(self.bot.weapons_detail.items()):
-                    embed = discord.Embed(
+                    embed = self.bot.create_base_embed(
                         title=f"武器一覧({n+1}/{len(self.bot.weapons_detail)})",
                         url=get_url(Url.EN_WIKI, "Weapons"),
-                        timestamp=self.bot.update_timestamp,
                     )
                     embed.add_field(
                         name=f"{index}",
@@ -149,15 +147,11 @@ class Weapon(commands.Cog):
                             value=f"[海外Wikiリンク]({Url.EN_WIKI}{value['weaponUrl']})",
                             inline=False,
                         )
-                    embed.set_footer(
-                        text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
-                    )
                     embeds.append(embed)
                 for embed in embeds:
                     await self.bot.send_deletable_message(intrtaction, embed=embed)
         except:
-            # TODO　エラー処理
-            pass
+            await self.bot.on_command_error(intrtaction, commands.CommandError(name))
 
     @app_commands.command(name="ammo", description="弾薬性能表示")
     @app_commands.describe(name="弾薬名を指定します。")
@@ -199,19 +193,18 @@ class Weapon(commands.Cog):
                 info_str += f"\n**弾薬一覧**:"
                 for ammunition in self.bot.ammo_list[name]:
                     info_str += f"\n・__[{ammunition['Name']}]({Url.EN_WIKI}{ammunition['Name'].replace(' ','_')})__"
-                embed = discord.Embed(
+                embed = self.bot.create_base_embed(
                     title=name,
                     url=get_url(Url.EN_WIKI, name.replace(' ', '_')),
                     description=info_str,
-                    timestamp=self.bot.update_timestamp,
-                )
-                embed.set_footer(
-                    text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
                 )
                 self.ammunition_figure_generation(self.bot.ammo_list, name)
                 embed.set_image(url="attachment://ammo.png")
                 await self.bot.send_deletable_message(intrtaction, embed=embed, file=self.file)
-                os.remove("ammo.png")
+                try:
+                    os.remove("ammo.png")
+                except PermissionError:
+                    pass
             elif name in [
                 ammo["Name"]
                 for ammoData in self.bot.ammo_list.values()
@@ -252,29 +245,17 @@ class Weapon(commands.Cog):
                             info_str += f"\n**特殊効果**: {value}"
                         elif key == "Sold by":
                             info_str += f"\n**販売元**: {value}"
-
-                embed = discord.Embed(
+                embed = self.bot.create_base_embed(
                     title=name,
                     url=get_url(Url.EN_WIKI, name.replace(' ', '_')),
                     description=info_str,
-                    timestamp=self.bot.update_timestamp,
-                )
-                embed.set_thumbnail(url=ammunition["Icon"])
-                embed.set_footer(
-                    text=f"Source: The Official Escape from Tarkov Wiki 最終更新"
+                    thumbnail=ammunition["Icon"]
                 )
                 try:
                     await self.bot.send_deletable_message(intrtaction, embed=embed)
                 except:
                     import traceback
-
                     traceback.print_exc()
-            else:
-                pass
-                # TODO エラー処理
-                # await self.bot.on_slash_command_error(
-                #     ctx, commands.CommandNotFound("ammo")
-                # )
         else:
             text = "弾薬性能表示"
             ammoImages = [
@@ -283,19 +264,15 @@ class Weapon(commands.Cog):
             ]
             for n, url in enumerate(ammoImages):
                 file = discord.File(f"../imgs/chart/ammo/{url}")
-                embed = discord.Embed(
+                embed = self.bot.create_base_embed(
                     title=f"({n+1}/{len(ammoImages)}){text}",
                     color=0x808080,
                     url=f"https://eft.monster/",
+                    author_name="Twitter: bojotaro_tarkov",
+                    author_url="https://twitter.com/bojotaro_tarkov",
+                    footer="提供元: https://twitter.com/bojotaro_tarkov/status/1476871141709213702"
                 )
                 embed.set_image(url=f"attachment://{url}")
-                embed.set_author(
-                    name="Twitter: bojotaro_tarkov",
-                    url="https://twitter.com/bojotaro_tarkov",
-                )
-                embed.set_footer(
-                    text="提供元: https://twitter.com/bojotaro_tarkov/status/1476871141709213702"
-                )
                 await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
 
 async def setup(bot: commands.Bot) -> None:

@@ -39,12 +39,15 @@ class Chart(commands.Cog):
                 color=0x808080,
                 url=author["link"],
             )
-            embed.set_image(url=f"attachment://{url}")
-            embed.set_author(
-                name=author["author"]["name"],
-                url=author["author"]["url"],
+            embed = self.bot.create_base_embed(
+                title=f"({n+1}/{len(recovery_images)})回復早見表",
+                color=0x808080,
+                url=author["link"],
+                author_name=author["author"]["name"],
+                author_url=author["author"]["url"],
+                footer=f"提供元: {author['link']}"
             )
-            embed.set_footer(text=f"提供元: {author['link']}")
+            embed.set_image(url=f"attachment://{url}")
             await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
 
     @app_commands.command(
@@ -74,17 +77,15 @@ class Chart(commands.Cog):
         ]
         for n, (url, author) in enumerate(zip(item_value_images, author_list)):
             file = discord.File(f"../imgs/chart/item/{url}")
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(item_value_images)})アイテム価格早見表",
                 color=0x808080,
                 url=author["link"],
+                author_name=author["author"]["name"],
+                author_url=author["author"]["url"],
+                footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=f"attachment://{url}")
-            embed.set_author(
-                name=author["author"]["name"],
-                url=author["author"]["url"],
-            )
-            embed.set_footer(text=f"提供元: {author['link']}")
             await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
 
     @app_commands.command(
@@ -113,17 +114,15 @@ class Chart(commands.Cog):
             },
         ]
         for n, (url, author) in enumerate(zip(task_item_images, author_list)):
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(task_item_images)})タスク使用アイテム早見表",
                 color=0x808080,
                 url=author["link"],
+                author_name=author["author"]["name"],
+                author_url=author["author"]["url"],
+                footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=url)
-            embed.set_author(
-                name=author["author"]["name"],
-                url=author["author"]["url"],
-            )
-            embed.set_footer(text=f"提供元: {author['link']}")
             await self.send_deletable_message(intrtaction, embed=embed)
 
     @app_commands.command(
@@ -145,17 +144,15 @@ class Chart(commands.Cog):
         ]
         for n, (url, author) in enumerate(zip(task_item_images, author_list)):
             file = discord.File(f"../imgs/chart/task/{url}")
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(task_item_images)})タスクツリー早見表",
                 color=0x808080,
                 url=author["link"],
+                author_name=author["author"]["name"],
+                author_url=author["author"]["url"],
+                footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=f"attachment://{url}")
-            embed.set_author(
-                name=author["author"]["name"],
-                url=author["author"]["url"],
-            )
-            embed.set_footer(text=f"提供元: {author['link']}")
             await self.send_deletable_message(intrtaction, embed=embed, file=file)
 
     @app_commands.command(
@@ -171,19 +168,15 @@ class Chart(commands.Cog):
         ]
         for n, url in enumerate(armor_images):
             file = discord.File(f"../imgs/chart/armor/{url}")
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(armor_images)})アーマー早見表",
                 color=0x808080,
                 url=f"{self.bot.enWikiUrl}Armor_vests",
+                author_name="Twitter: @N7th_WF",
+                author_url="https://twitter.com/N7th_WF",
+                footer="提供元: https://twitter.com/N7th_WF/status/1376825476598013957?s=20"
             )
             embed.set_image(url=f"attachment://{url}")
-            embed.set_author(
-                name="Twitter: @N7th_WF",
-                url="https://twitter.com/N7th_WF",
-            )
-            embed.set_footer(
-                text="提供元: https://twitter.com/N7th_WF/status/1376825476598013957?s=20"
-            )
             await self.send_deletable_message(intrtaction, embed=embed, file=file)
 
     @app_commands.command(
@@ -200,19 +193,15 @@ class Chart(commands.Cog):
         ]
         for n, url in enumerate(headset_images):
             file = discord.File(f"../imgs/chart/headset/{url}")
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(headset_images)})ヘッドセット早見表",
                 color=0x808080,
                 url=f"{self.bot.enWikiUrl}Headsets",
+                author_name="セヴンスGaming",
+                author_url="https://www.youtube.com/channel/UCZpSzN3ozBUnJrXLmx50qVA",
+                footer="提供元: [ EFT 解説 ] ヘッドセットの選び方ガイド②考察編【タルコフ】 https://www.youtube.com/watch?v=LyVGpyBZ0EU"
             )
             embed.set_image(url=f"attachment://{url}")
-            embed.set_author(
-                name="セヴンスGaming",
-                url="https://www.youtube.com/channel/UCZpSzN3ozBUnJrXLmx50qVA",
-            )
-            embed.set_footer(
-                text="提供元: [ EFT 解説 ] ヘッドセットの選び方ガイド②考察編【タルコフ】 https://www.youtube.com/watch?v=LyVGpyBZ0EU"
-            )
             await self.send_deletable_message(intrtaction, embed=embed, file=file)
 
     @app_commands.command(
@@ -228,7 +217,7 @@ class Chart(commands.Cog):
         ]
         for n, url in enumerate(lighthouse_task_images):
             file = discord.File(f"../imgs/chart/task/{url}")
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(lighthouse_task_images)})ヘッドセット早見表",
                 color=0x808080,
             )
