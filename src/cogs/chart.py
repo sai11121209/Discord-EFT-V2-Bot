@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from const import Url
 
 
 class Chart(commands.Cog):
@@ -123,7 +124,7 @@ class Chart(commands.Cog):
                 footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=url)
-            await self.send_deletable_message(integration, embed=embed)
+            await self.bot.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(
         name="tasktree",
@@ -153,7 +154,7 @@ class Chart(commands.Cog):
                 footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(integration, embed=embed, file=file)
+            await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="armor",
@@ -171,13 +172,13 @@ class Chart(commands.Cog):
             embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(armor_images)})アーマー早見表",
                 color=0x808080,
-                url=f"{self.bot.enWikiUrl}Armor_vests",
+                url=f"{Url.EN_WIKI}Armor_vests",
                 author_name="Twitter: @N7th_WF",
                 author_url="https://twitter.com/N7th_WF",
                 footer="提供元: https://twitter.com/N7th_WF/status/1376825476598013957?s=20"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(integration, embed=embed, file=file)
+            await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="headset",
@@ -196,13 +197,13 @@ class Chart(commands.Cog):
             embed = self.bot.create_base_embed(
                 title=f"({n+1}/{len(headset_images)})ヘッドセット早見表",
                 color=0x808080,
-                url=f"{self.bot.enWikiUrl}Headsets",
+                url=f"{Url.EN_WIKI}Headsets",
                 author_name="セヴンスGaming",
                 author_url="https://www.youtube.com/channel/UCZpSzN3ozBUnJrXLmx50qVA",
                 footer="提供元: [ EFT 解説 ] ヘッドセットの選び方ガイド②考察編【タルコフ】 https://www.youtube.com/watch?v=LyVGpyBZ0EU"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(integration, embed=embed, file=file)
+            await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="lighthousetask",
@@ -222,7 +223,7 @@ class Chart(commands.Cog):
                 color=0x808080,
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(integration, embed=embed, file=file)
+            await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
 
 async def setup(bot: commands.Bot) -> None:
