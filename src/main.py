@@ -508,11 +508,11 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         }
         self.executable_command["reload"] = True
 
-    async def send_deletable_message(self, intrtaction: discord.Integration, message: str=None, embed: discord.Embed=None, embeds: list=None, file: discord.File=None, view:discord.ui.View=None) -> None:
+    async def send_deletable_message(self, integration: discord.Integration, message: str=None, embed: discord.Embed=None, embeds: list=None, file: discord.File=None, view:discord.ui.View=None) -> None:
         """削除リアクションを付加したメッセージを送る関数
 
         Args:
-            intrtaction (discord.Integration): discord.Integration
+            integration (discord.Integration): discord.Integration
             message (str): 送信するメッセージ
         """
         # 空の場合送信しない
@@ -523,14 +523,14 @@ class EscapeFromTarkovV2Bot(commands.Bot):
             N = 4
             send_messages = []
             for i in range(0, len(embeds), N):
-                send_message = await intrtaction.followup.send(message, embeds=embeds[i:i+N], file=file, view=view) if file and bool([embed.image.url.split("//")[-1] for embed in embeds[i:i+N] if embed.image.url.split("//")[-1]==file.filename]) else await intrtaction.followup.send(message, embeds=embeds[i:i+N], view=view)
+                send_message = await integration.followup.send(message, embeds=embeds[i:i+N], file=file, view=view) if file and bool([embed.image.url.split("//")[-1] for embed in embeds[i:i+N] if embed.image.url.split("//")[-1]==file.filename]) else await integration.followup.send(message, embeds=embeds[i:i+N], view=view)
                 send_messages.append(send_message)
             return send_messages
         else:
             if file:
-                send_message = await intrtaction.followup.send(message, embed=embed, file=file, view=view)
+                send_message = await integration.followup.send(message, embed=embed, file=file, view=view)
             else:
-                send_message = await intrtaction.followup.send(message, embed=embed, view=view)
+                send_message = await integration.followup.send(message, embed=embed, view=view)
             return send_message
 
     def create_base_embed(self, title:str="Escape from Tarkov Bot", description:str="", url:str=None, color:int=0x2ECC69, timestamp:datetime=None, thumbnail:str="", author_name:str="Escape from Tarkov Bot", author_url:str="https://github.com/sai11121209/Discord-EFT-V2-Bot", author_icon:str=None, footer:str="Source: The Official Escape from Tarkov Wiki 最終更新")->discord.Embed:
@@ -684,8 +684,8 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         pass
 
     # 登録されているスラッシュコマンド以外の例外発生時発火
-    # async def on_command_error(self, intrtaction, error):
-    #     print(intrtaction)
+    # async def on_command_error(self, integration, error):
+    #     print(integration)
     #     pass
 
     # TODO リアクション反応時発火
@@ -709,22 +709,22 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         except:
             pass
 
-    async def on_command_error(self, intrtaction, error):
+    async def on_command_error(self, integration, error):
         if isinstance(error, commands.CommandNotFound):
             hit_commands = []
-            if intrtaction.command.name == "map":
+            if integration.command.name == "map":
                 hit_commands += [map.lower() for map in self.maps_detail]
-            elif intrtaction.command.name == "weapon":
+            elif integration.command.name == "weapon":
                 hit_commands += [weapon_name.lower()
                                 for weapon_name in self.weapons_name]
-            elif intrtaction.command.name == "ammo":
+            elif integration.command.name == "ammo":
                 hit_commands += [ammo for ammo in self.ammo_list.keys()]
                 hit_commands += [
                     a["Name"]
                     for ammo in self.ammo_list.values()
                     for a in ammo
                 ]
-            elif intrtaction.command.name == "task":
+            elif integration.command.name == "task":
                 hit_commands += [task_name.lower() for task_name in self.tasks_name]
             # コマンドの予測変換
             self.hints = [
@@ -734,14 +734,14 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                     for command in hit_commands
                     if difflib.SequenceMatcher(
                         None,
-                        intrtaction.namespace.name.lower(),
+                        integration.namespace.name.lower(),
                         self.command_prefix + command,
                     ).ratio()
                     >= 0.59
                 ]
             ]
-            if intrtaction.namespace.name.lower() in self.hints:
-                self.hints = [intrtaction.namespace.name.lower()]
+            if integration.namespace.name.lower() in self.hints:
+                self.hints = [integration.namespace.name.lower()]
             if len(self.hints) > 0:
                 embed = self.create_base_embed(
                     title="Hint",
@@ -754,26 +754,26 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                 select_menu = []
                 for hint in self.hints:
                     embed.add_field(
-                        name=hint, value=f"__`{self.command_prefix}{intrtaction.command.name} {hint}`__"
+                        name=hint, value=f"__`{self.command_prefix}{integration.command.name} {hint}`__"
                     )
                 self.hints = fix_hints
                 if len(self.hints) == 1:
-                    command = self.tree.get_command(intrtaction.command.name)
-                    cogs = self.cogs.get(intrtaction.command.name.capitalize())
-                    await intrtaction.response.defer(thinking=True)
-                    await command.callback(cogs, intrtaction,  self.hints[0])
+                    command = self.tree.get_command(integration.command.name)
+                    cogs = self.cogs.get(integration.command.name.capitalize())
+                    await integration.response.defer(thinking=True)
+                    await command.callback(cogs, integration,  self.hints[0])
                 else:
                     try:
                         for command in self.hints:
                             select_menu.append(command)
                     except:
                         pass
-                    view.add_item(SelectMenu(intrtaction.command.name, select_menu, "地図を出力したいマップを選んでください"))
-                    self.hints_embed = await self.send_deletable_message(intrtaction, embed=embed, view=view)
+                    view.add_item(SelectMenu(integration.command.name, select_menu, "地図を出力したいマップを選んでください"))
+                    self.hints_embed = await self.send_deletable_message(integration, embed=embed, view=view)
             else:
-                message = f"入力されたコマンド {intrtaction.command.name} {intrtaction.namespace.name.lower()} は見つからなかったよ...ごめんね。\n"
+                message = f"入力されたコマンド {integration.command.name} {integration.namespace.name.lower()} は見つからなかったよ...ごめんね。\n"
                 message += f"これ以外に使えるコマンドは {self.command_prefix}help で確認できるよ!"
-                await self.send_deletable_message(intrtaction, message)
+                await self.send_deletable_message(integration, message)
         elif isinstance(error, commands.ExtensionError):
             pass
         elif isinstance(error, commands.MissingRole):
@@ -784,7 +784,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
             error_time = dt.now(JST)
             embed = self.create_base_embed(
                 title=f"ErrorLog ({error_time.strftime('%Y%m%d%H%M%S')})",
-                description=f"ご迷惑をおかけしております。コマンド実行中において例外処理が発生しました。\nこのエラーログは {self.application.owner.mention} に送信されています。 {intrtaction.user.mention} バグを発見してくれてありがとう!",
+                description=f"ご迷惑をおかけしております。コマンド実行中において例外処理が発生しました。\nこのエラーログは {self.application.owner.mention} に送信されています。 {integration.user.mention} バグを発見してくれてありがとう!",
                 color=0xFF0000,
                 footer="",
             )
@@ -794,30 +794,30 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                 inline=False,
             )
             embed.add_field(
-                name="ServerId", value=f"```{intrtaction.guild.id}```", inline=False
+                name="ServerId", value=f"```{integration.guild.id}```", inline=False
             )
             embed.add_field(
-                name="ServerName", value=f"```{intrtaction.guild.name}```", inline=False
+                name="ServerName", value=f"```{integration.guild.name}```", inline=False
             )
             embed.add_field(
-                name="ChannelId", value=f"```{intrtaction.channel.id}```", inline=False
+                name="ChannelId", value=f"```{integration.channel.id}```", inline=False
             )
             embed.add_field(
-                name="ChannelName", value=f"```{intrtaction.channel.name}```", inline=False
+                name="ChannelName", value=f"```{integration.channel.name}```", inline=False
             )
             embed.add_field(
-                name="UserId", value=f"```{intrtaction.user.id}```", inline=False)
+                name="UserId", value=f"```{integration.user.id}```", inline=False)
             embed.add_field(
-                name="UserName", value=f"```{intrtaction.user.name}```", inline=False
+                name="UserName", value=f"```{integration.user.name}```", inline=False
             )
             embed.add_field(
-                name="ErrorCommand", value=f"```{intrtaction.command.name}```", inline=False
+                name="ErrorCommand", value=f"```{integration.command.name}```", inline=False
             )
             embed.add_field(name="ErrorCommandOption",
                             value=f"```{error}```" if error.args else "```None```", inline=False)
             await channel.send(embed=embed)
             if self.LOCAL_HOST == False:
-                await self.send_deletable_message(intrtaction, embed=embed)
+                await self.send_deletable_message(integration, embed=embed)
 
     async def on_message(self, message):
         if self.LOCAL_HOST or not message.content: return

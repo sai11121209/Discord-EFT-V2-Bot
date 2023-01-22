@@ -11,7 +11,7 @@ class Task(commands.Cog):
 
     @app_commands.command(name="task", description="タスク一覧表示コマンド")
     @app_commands.describe(name="名前")
-    async def task(self, intrtaction:discord.Integration, name:str=None) -> None:
+    async def task(self, integration:discord.Integration, name:str=None) -> None:
         if name:
             if type(name) == list:
                 name = name[0]
@@ -23,7 +23,7 @@ class Task(commands.Cog):
                     if value["questName"].lower().replace(" ", "") == name
                 ][0]
             except:
-                return await self.bot.on_command_error(intrtaction, commands.CommandNotFound("task"))
+                return await self.bot.on_command_error(integration, commands.CommandNotFound("task"))
             info_str = ""
             embeds = []
             for col_name, values in task_data.items():
@@ -124,8 +124,8 @@ class Task(commands.Cog):
                 thumbnail=task_data["dealerThumbnail"]
             )
             embed.set_image(url=task_data["taskThumbnail"])
-            await self.bot.send_deletable_message(intrtaction, embed=embed)
-            await self.bot.send_deletable_message(intrtaction, embeds=embeds)
+            await self.bot.send_deletable_message(integration, embed=embed)
+            await self.bot.send_deletable_message(integration, embeds=embeds)
         else:
             for n, (index, values) in enumerate(self.bot.tasks_detail.items()):
                 embed = self.bot.create_base_embed(
@@ -144,7 +144,7 @@ class Task(commands.Cog):
                         inline=True,
                     )
                     embed.set_thumbnail(url=value["dealerThumbnail"])
-                await self.bot.send_deletable_message(intrtaction, embed=embed)
+                await self.bot.send_deletable_message(integration, embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:

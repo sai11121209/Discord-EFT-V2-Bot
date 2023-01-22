@@ -11,7 +11,7 @@ class Chart(commands.Cog):
         name="recovery",
         description="回復早見表",
     )
-    async def chart_recovery(self, intrtaction: discord.Integration) -> None:
+    async def chart_recovery(self, integration: discord.Integration) -> None:
         recovery_images = [
             "abnormal_state.jpg",
             "recovery.jpg",
@@ -48,13 +48,13 @@ class Chart(commands.Cog):
                 footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
+            await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="itemvalue",
         description="アイテム価格早見表",
     )
-    async def chart_itemvalue(self, intrtaction: discord.Integration) -> None:
+    async def chart_itemvalue(self, integration: discord.Integration) -> None:
         item_value_images = [
             "pyramid.jpg",
             "chart.jpg",
@@ -86,13 +86,13 @@ class Chart(commands.Cog):
                 footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
+            await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="taskitem",
         description="タスク使用アイテム早見表",
     )
-    async def chart_taskitem(self, intrtaction: discord.Integration) -> None:
+    async def chart_taskitem(self, integration: discord.Integration) -> None:
         task_item_images = [
             "https://static.wikia.nocookie.net/escapefromtarkov_gamepedia/images/1/19/QuestItemRequirements.png/revision/latest?cb=20210212192637&format=original",
             "https://static.wikia.nocookie.net/escapefromtarkov_gamepedia/images/f/f8/QuestItemsInRaid.png/revision/latest?cb=20210212192627&format=original",
@@ -123,13 +123,13 @@ class Chart(commands.Cog):
                 footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=url)
-            await self.send_deletable_message(intrtaction, embed=embed)
+            await self.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(
         name="tasktree",
         description="タスクツリー早見表",
     )
-    async def chart_tasktree(self, intrtaction: discord.Integration) -> None:
+    async def chart_tasktree(self, integration: discord.Integration) -> None:
         task_item_images = [
             "tree.jpg",
         ]
@@ -153,13 +153,13 @@ class Chart(commands.Cog):
                 footer=f"提供元: {author['link']}"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(intrtaction, embed=embed, file=file)
+            await self.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="armor",
         description="アーマー早見表",
     )
-    async def chart_armor(self, intrtaction: discord.Integration) -> None:
+    async def chart_armor(self, integration: discord.Integration) -> None:
         armor_images = [
             "class4.jpg",
             "class5.jpg",
@@ -177,13 +177,13 @@ class Chart(commands.Cog):
                 footer="提供元: https://twitter.com/N7th_WF/status/1376825476598013957?s=20"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(intrtaction, embed=embed, file=file)
+            await self.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="headset",
         description="ヘッドセット早見表",
     )
-    async def chart_headset(self, intrtaction: discord.Integration) -> None:
+    async def chart_headset(self, integration: discord.Integration) -> None:
         headset_images = [
             "chart.PNG",
             "gssh_comtac2.PNG",
@@ -202,13 +202,13 @@ class Chart(commands.Cog):
                 footer="提供元: [ EFT 解説 ] ヘッドセットの選び方ガイド②考察編【タルコフ】 https://www.youtube.com/watch?v=LyVGpyBZ0EU"
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(intrtaction, embed=embed, file=file)
+            await self.send_deletable_message(integration, embed=embed, file=file)
 
     @app_commands.command(
         name="lighthousetask",
         description="Lighthouseタスク早見表",
     )
-    async def chart_lighthousetask(self, intrtaction: discord.Integration) -> None:
+    async def chart_lighthousetask(self, integration: discord.Integration) -> None:
         lighthouse_task_images = [
             "lighthouse_1.jpg",
             "lighthouse_2.jpg",
@@ -222,7 +222,7 @@ class Chart(commands.Cog):
                 color=0x808080,
             )
             embed.set_image(url=f"attachment://{url}")
-            await self.send_deletable_message(intrtaction, embed=embed, file=file)
+            await self.send_deletable_message(integration, embed=embed, file=file)
 
 
 async def setup(bot: commands.Bot) -> None:

@@ -10,7 +10,7 @@ class Character(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="dealers", description="ディーラー一覧表示")
-    async def dealers(self, intrtaction: discord.Integration) -> None:
+    async def dealers(self, integration: discord.Integration) -> None:
         embed = self.bot.create_base_embed(
             title="※最新情報ではありません。TBD ディーラー",
             url=get_url(Url.EN_WIKI, "Dealers"),
@@ -46,10 +46,10 @@ class Character(commands.Cog):
                 name=f"<:{trader_name}:{trader['stampid']}> {trader_name}",
                 value=text,
             )
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(name="boss", description="ボス一覧表示")
-    async def boss(self, intrtaction: discord.Integration) -> None:
+    async def boss(self, integration: discord.Integration) -> None:
         embed = self.bot.create_base_embed(
             title="※最新情報ではありません。TBD ボス",
             url=get_url(Url.EN_WIKI, "Bosses"),
@@ -91,7 +91,7 @@ class Character(commands.Cog):
                 )
             except:
                 pass
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Character(bot))

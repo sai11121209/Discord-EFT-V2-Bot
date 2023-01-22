@@ -15,7 +15,7 @@ class Other(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="patch", description="パッチノート表示")
-    async def patch(self, intrtaction: discord.Integration) -> None:
+    async def patch(self, integration: discord.Integration) -> None:
         if self.bot.NOTIFICATION_INFORMATION:
             embed = self.bot.create_base_embed(
                 title="近日大規模なアップデートが行われる予定です。",
@@ -39,7 +39,7 @@ class Other(commands.Cog):
             embed.add_field(
                 name=f"version: {index.split(':', 1)[0]}", value=text, inline=False
             )
-            await self.bot.send_deletable_message(intrtaction, embed=embed)
+            await self.bot.send_deletable_message(integration, embed=embed)
 
         embed = self.bot.create_base_embed(
             title="更新履歴一覧",
@@ -61,10 +61,10 @@ class Other(commands.Cog):
             embed.add_field(
                 name=f"version: {index.split(':', 1)[0]}", value=text, inline=False
             )
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(name="now", description="現在時刻表示")
-    async def now(self, intrtaction: discord.Integration) -> None:
+    async def now(self, integration: discord.Integration) -> None:
         embed = self.bot.create_base_embed(
             title="現在時刻",
             description="主要タイムゾーン時刻",
@@ -98,10 +98,10 @@ class Other(commands.Cog):
             ).strftime("%Y/%m/%d %H:%M:%S"),
             inline=False,
         )
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(name="btc", description="ビットコイン価格表示")
-    async def btc(self, intrtaction: discord.Integration) -> None:
+    async def btc(self, integration: discord.Integration) -> None:
         timestamp = dt.now(JST).timestamp()
         summary_jpy = rq.get(
             "https://api.cryptowat.ch/markets/bitflyer/btcjpy/summary"
@@ -142,7 +142,7 @@ class Other(commands.Cog):
         embed.add_field(
             name="最安値", value="{:,}".format(summary_jpy["price"]["low"]) + " 円"
         )
-        await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
+        await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
 
 async def setup(bot: commands.Bot) -> None:

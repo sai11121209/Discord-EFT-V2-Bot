@@ -32,7 +32,7 @@ class Map(commands.Cog):
             Choice(name="TOWN", value="TOWN"),
         ]
     )
-    async def map(self, intrtaction:discord.Integration, name:str=None) -> None:
+    async def map(self, integration:discord.Integration, name:str=None) -> None:
         release_text = ""
         released_color = 0x2ECC69
         unreleased_color = 0xFF0000
@@ -93,7 +93,7 @@ class Map(commands.Cog):
                 url=f"{Url.EN_WIKI}{self.bot.maps_detail[name]['MapUrl']}",
             )
             embed.set_image(url=self.bot.maps_detail[name]["Banner"])
-            await self.bot.send_deletable_message(intrtaction, embed=embed)
+            await self.bot.send_deletable_message(integration, embed=embed)
             map_data = self.bot.maps_detail[name]["Images"]
             n = 1
             embeds = []
@@ -116,7 +116,7 @@ class Map(commands.Cog):
                 embed.set_image(url=value)
                 embeds.append(embed)
                 n += 1
-            await self.bot.send_deletable_message(intrtaction, embeds=embeds, file=file)
+            await self.bot.send_deletable_message(integration, embeds=embeds, file=file)
         else:
             embed = self.bot.create_base_embed(
                 title="MAP LIST",
@@ -161,8 +161,8 @@ class Map(commands.Cog):
                     embed.add_field(name=values["Name"].upper(), value=text)
                 else:
                     embed.add_field(name=map, value=f"~~{text}~~")
-            view.add_item(SelectMenu(intrtaction.command.name, select_menu, "地図を出力したいマップを選んでください"))
-            await self.bot.send_deletable_message(intrtaction, embed=embed, view=view)
+            view.add_item(SelectMenu(integration.command.name, select_menu, "地図を出力したいマップを選んでください"))
+            await self.bot.send_deletable_message(integration, embed=embed, view=view)
 
 # マップ画像取得
 def GetMapImage(map_name):

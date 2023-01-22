@@ -19,12 +19,13 @@ class Rate(commands.Cog):
         return soup.find("div", {"class": "bold alt"}).get_text().replace("₽", "")
 
     @app_commands.command(name="rate", description="EFT為替レートを表示")
-    async def rate(self, intrtaction: discord.Integration) -> None:
+    async def rate(self, integration: discord.Integration) -> None:
         euro = self.get_rate("euros")
         dollar = self.get_rate("dollars")
-        embed = discord.Embed(
+        embed = self.bot.create_base_embed(
             title=f"EFT為替レート",
             color=0x808080,
+            footer=f"提供元: {Url.MARKET}"
         )
         embed.add_field(
             name="ユーロ値段",
@@ -34,16 +35,16 @@ class Rate(commands.Cog):
             name="ドル値段",
             value=f"{dollar}₽",
         )
-        embed.set_footer(text=f"提供元: {Url.MARKET}")
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(name="euro", description="EUR → RUB 為替レート計算")
     @app_commands.describe(price="ユーロの値段を入力。")
-    async def rate_euro(self, intrtaction: discord.Integration, price: int) -> None:
+    async def rate_euro(self, integration: discord.Integration, price: int) -> None:
         euro = self.get_rate("euros")
-        embed = discord.Embed(
+        embed = self.bot.create_base_embed(
             title=f"RUB → EUR 為替レート計算",
             color=0x808080,
+            footer=f"提供元: {Url.MARKET}"
         )
         embed.add_field(
             name="ユーロ値段",
@@ -53,16 +54,16 @@ class Rate(commands.Cog):
             name="換算ルーブル値段",
             value=f"{int(euro)*price}₽",
         )
-        embed.set_footer(text=f"提供元: {Url.MARKET}")
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
     @app_commands.command(name="dollar", description="USD → RUB 為替レート計算")
     @app_commands.describe(price="ドルの値段を入力。")
-    async def rate_dollar(self, intrtaction: discord.Integration, price: int) -> None:
+    async def rate_dollar(self, integration: discord.Integration, price: int) -> None:
         dollar = self.get_rate("dollars")
-        embed = discord.Embed(
+        embed = self.bot.create_base_embed(
             title=f"EFT為替レート",
             color=0x808080,
+            footer=f"提供元: {Url.MARKET}"
         )
         embed.add_field(
             name="ドル値段",
@@ -73,7 +74,7 @@ class Rate(commands.Cog):
             value=f"{int(dollar)*price}₽",
         )
         embed.set_footer(text=f"提供元: {Url.MARKET}")
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:

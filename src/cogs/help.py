@@ -11,10 +11,10 @@ class Help(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="help", description="使用可能コマンド表示")
-    async def help(self, intrtaction: discord.Integration) -> None:
-        await intrtaction.response.defer(thinking=True)
-        embed = discord.Embed(
-            title="EFT(Escape from Tarkov) Wiki Bot使用可能コマンド一覧だよ!",
+    async def help(self, integration: discord.Integration) -> None:
+        await integration.response.defer(thinking=True)
+        embed = self.bot.create_base_embed(
+            title="Escape from Tarkov Bot使用可能コマンド一覧だよ!",
             description=f"```Prefix:{self.bot.command_prefix}```",
             color=0x2ECC69,
             timestamp=datetime.datetime.utcfromtimestamp(
@@ -22,8 +22,10 @@ class Help(commands.Cog):
                     list(self.bot.PATCH_NOTES.keys())[0].split(":", 1)[1] + "+09:00",
                     "%Y/%m/%d %H:%M%z",
                 ).timestamp()
-            )
-
+            ),
+            thumbnail=self.bot.user.avatar.url,
+            author_icon=self.bot.user.avatar.url,
+            footer="Escape from Tarkov Bot最終更新"
         )
         for command in self.bot.tree.get_commands():
             try:
@@ -48,14 +50,7 @@ class Help(commands.Cog):
                     )
             except:
                 pass
-        embed.set_thumbnail(url=self.bot.user.avatar.url)
-        embed.set_author(
-            name="EFT(Escape from Tarkov) Wiki Bot",
-            url="https://github.com/sai11121209",
-            icon_url=self.bot.user.avatar.url,
-        )
-        embed.set_footer(text="EFT Wiki Bot最終更新")
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:

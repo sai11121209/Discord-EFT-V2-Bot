@@ -24,20 +24,19 @@ class Reload(commands.Cog):
             Choice(name="全て", value="all")
         ]
     )
-    async def reload(self, intrtaction: discord.Integration, category: str) -> None:
-        await intrtaction.response.defer(thinking=True)
+    async def reload(self, integration: discord.Integration, category: str) -> None:
+        await integration.response.defer(thinking=True)
         await self.bot.data_reload(category)
-        embed = discord.Embed(
+        embed = self.bot.create_base_embed(
             title="データのリロード完了",
             color=0xFF0000,
-            timestamp=datetime.datetime.fromtimestamp(dt.now(JST).timestamp()),
         )
         embed.add_field(
             name="リロードカテゴリ",
             value=CommandCategory.COMMAND_CATEGORY_MAP.get(category),
             inline=False,
         )
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:

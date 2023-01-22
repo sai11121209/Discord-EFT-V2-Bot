@@ -53,7 +53,7 @@ class Weapon(commands.Cog):
 
     @app_commands.command(name="weapon", description="武器一覧表示")
     @app_commands.describe(name="武器名を指定します。")
-    async def weapon(self, intrtaction: discord.Integration, name: str=None) -> None:
+    async def weapon(self, integration: discord.Integration, name: str=None) -> None:
         self.ammo_chart_check = False
         try:
             if name:
@@ -69,7 +69,7 @@ class Weapon(commands.Cog):
                         if value["名前"].upper().replace(" ", "") == fix_text
                     ][0]
                 except IndexError:
-                    return await self.bot.on_command_error(intrtaction, commands.CommandNotFound("weapon"))
+                    return await self.bot.on_command_error(integration, commands.CommandNotFound("weapon"))
                 for col_name, value in weapon_data.items():
                     if col_name in [
                         "名前",
@@ -123,7 +123,7 @@ class Weapon(commands.Cog):
                 )
                 if self.ammo_chart_check:
                     embed.set_image(url="attachment://ammo.png")
-                    await self.bot.send_deletable_message(intrtaction, embed=embed, file=self.file)
+                    await self.bot.send_deletable_message(integration, embed=embed, file=self.file)
                     try:
                         os.remove("ammo.png")
                     except PermissionError:
@@ -149,9 +149,9 @@ class Weapon(commands.Cog):
                         )
                     embeds.append(embed)
                 for embed in embeds:
-                    await self.bot.send_deletable_message(intrtaction, embed=embed)
+                    await self.bot.send_deletable_message(integration, embed=embed)
         except:
-            await self.bot.on_command_error(intrtaction, commands.CommandError(name))
+            await self.bot.on_command_error(integration, commands.CommandError(name))
 
     @app_commands.command(name="ammo", description="弾薬性能表示")
     @app_commands.describe(name="弾薬名を指定します。")
@@ -183,7 +183,7 @@ class Weapon(commands.Cog):
             Choice(name="26x75mm", value="26x75mm"),
         ]
     )
-    async def ammo(self, intrtaction: discord.Integration, name: str=None) -> None:
+    async def ammo(self, integration: discord.Integration, name: str=None) -> None:
         self.ammo_chart_check = False
         if name:
             if type(name) == list:
@@ -200,7 +200,7 @@ class Weapon(commands.Cog):
                 )
                 self.ammunition_figure_generation(self.bot.ammo_list, name)
                 embed.set_image(url="attachment://ammo.png")
-                await self.bot.send_deletable_message(intrtaction, embed=embed, file=self.file)
+                await self.bot.send_deletable_message(integration, embed=embed, file=self.file)
                 try:
                     os.remove("ammo.png")
                 except PermissionError:
@@ -252,7 +252,7 @@ class Weapon(commands.Cog):
                     thumbnail=ammunition["Icon"]
                 )
                 try:
-                    await self.bot.send_deletable_message(intrtaction, embed=embed)
+                    await self.bot.send_deletable_message(integration, embed=embed)
                 except:
                     import traceback
                     traceback.print_exc()
@@ -273,7 +273,7 @@ class Weapon(commands.Cog):
                     footer="提供元: https://twitter.com/bojotaro_tarkov/status/1476871141709213702"
                 )
                 embed.set_image(url=f"attachment://{url}")
-                await self.bot.send_deletable_message(intrtaction, embed=embed, file=file)
+                await self.bot.send_deletable_message(integration, embed=embed, file=file)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Weapon(bot))

@@ -16,11 +16,11 @@ class Random(commands.Cog):
             Choice(name="武器", value="weapon"),
         ]
     )
-    async def random(self, intrtaction: discord.Integration, type: str) -> None:
+    async def random(self, integration: discord.Integration, type: str) -> None:
         if type=="map":
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title="迷ったときのEFTマップ抽選",
-                description=f"{intrtaction.user.mention}が赴くマップは...",
+                description=f"{integration.user.mention}が赴くマップは...",
                 color=0x2ECC69,
             )
             map = r.choice(
@@ -28,14 +28,14 @@ class Random(commands.Cog):
             ).lower()
             embed.add_field(name="MAP", value=map, inline=False)
         else:
-            embed = discord.Embed(
+            embed = self.bot.create_base_embed(
                 title="迷ったときのEFT武器抽選",
-                description=f"{intrtaction.user.mention}が使用する武器は...",
+                description=f"{integration.user.mention}が使用する武器は...",
                 color=0x2ECC69,
             )
             weapon = r.choice(self.bot.weapons_name)
             embed.add_field(name="WEAPON", value=weapon, inline=False)
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:

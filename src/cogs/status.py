@@ -23,15 +23,17 @@ class Status(commands.Cog):
         }
 
     @app_commands.command(name="status", description="EscapefromTarkovサーバのステータスを表示")
-    async def status(self, intrtaction: discord.Integration) -> None:
+    async def status(self, integration: discord.Integration) -> None:
+        await integration.response.defer(thinking=True)
         for key, value in Url.SERVER_STATUS_MAP.items():
             res = get_requests_response(value)
             self.status_data[key] = json.loads(res.text)
-        embed = discord.Embed(
+        embed = self.bot.create_base_embed(
             title=f"EscapeTarkovServerStatus",
             color=ServerStatusColorCode.SERVER_STATUS_COLOR_CODE_MAP.get(str(self.status_data["status"]["status"])),
             url="https://status.escapefromtarkov.com/",
-            timestamp=datetime.datetime.fromtimestamp(dt.now(JST).timestamp()),
+            thumbnail="https://status.escapefromtarkov.com/favicon.ico",
+            footer="Source: Escape from Tarkov Status 最終更新"
         )
         for key, values in self.status_data.items():
             if key == "status":
@@ -67,13 +69,7 @@ class Status(commands.Cog):
                     )
                 except:
                     pass
-        embed.set_thumbnail(url="https://status.escapefromtarkov.com/favicon.ico")
-        embed.set_footer(text=f"Source: Escape from Tarkov Status 最終更新")
-        embed.set_author(
-            name="EFT(Escape from Tarkov) Wiki Bot",
-            url="https://github.com/sai11121209",
-        )
-        await self.bot.send_deletable_message(intrtaction, embed=embed)
+        await self.bot.send_deletable_message(integration, embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:
