@@ -479,10 +479,11 @@ PATCH_NOTES = {
 
 try:
     from local_settings import *
-    LOCAL_HOST = False
+    LOCAL_HOST = True
 except ImportError:
     APPLICATION_ID = os.getenv("APPLICATION_ID")
     BOT_TOKEN = os.getenv("BOT_TOKEN")
+    LOCAL_HOST = False
 
 client = discord.Client(intents=discord.Intents.all())
 tree = discord.app_commands.CommandTree(client)
