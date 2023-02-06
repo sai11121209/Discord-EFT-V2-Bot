@@ -485,7 +485,10 @@ except ImportError:
     BOT_TOKEN = os.getenv("BOT_TOKEN")
     LOCAL_HOST = False
 
-client = discord.Client(intents=discord.Intents.all())
+client = discord.Client(
+    intents=discord.Intents.all(),
+    heartbeat_timeout=2000
+)
 tree = discord.app_commands.CommandTree(client)
 
 class EscapeFromTarkovV2Bot(commands.Bot):
