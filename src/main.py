@@ -558,10 +558,13 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         """スラッシュコマンド読み込み反映処理"""
         [await self.load_extension(cog) for cog in INITIAL_EXTENSIONS]
         await bot.tree.sync()
-        await self.data_reload(category="all")
 
     async def on_ready(self) -> None:
         load_start_time = time.time()
+        await self.data_reload(category="map")
+        await self.data_reload(category="character")
+        await self.data_reload(category="task")
+        await self.data_reload(category="weapon")
         if self.LOCAL_HOST: return
         channel = self.get_channel(ChannelCode.EXCEPTION_LOG)
         elapsed_time = time.time() - load_start_time
