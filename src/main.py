@@ -293,7 +293,12 @@ COMMAND_LIST = {
     "ビットコイン価格表示": ["BTC"],
     "ソースコード表示": ["SOURCE"],
 }
-NOTIFICATION_INFORMATION = {}
+NOTIFICATION_INFORMATION = {
+    "6.0": [
+        "OpenAIのサードパーティーライブラリを使用したAIチャットボットコマンド _`AICHAT`_ を追加予定。",
+        "OpenAIのサードパーティーライブラリを使用したAI画像生成コマンド _`AIIMG`_ を追加予定。",
+    ]
+}
 # 上に追記していくこと
 PATCH_NOTES = {
     "5.0:2023/01/20 00:00": [
@@ -301,8 +306,6 @@ PATCH_NOTES = {
         "ランタイムをPython3.8からPython3.11に移行、これによりプログラム全体の処理速度が向上いたします。",
         "discord.py v2.xに対応。これにより柔軟に新機能を追加することが可能になります。",
         "プログラム再起動を行わず最新のwikiデータを取得するコマンド _`RELOAD`_ を追加しました。",
-        "OpenAIのサードパーティーライブラリを使用したAIチャットボットコマンド _`AICHAT`_ を追加しました。",
-        "OpenAIのサードパーティーライブラリを使用したAI画像生成コマンド _`AIIMG`_ を追加しました。",
         "ヘルプコマンド _`HELP`_ において試験的に埋め込みメッセージのページングを行うようにしました。",
         "一部コマンドの埋め込みメッセージを一括で送信することでレスポンスの速度の改善を行いました。",
         "一部弾薬(5.56x45mm NATO、 9x18mm Makarov)などにおいて弾薬表が表示出来ないバグの修正。",
@@ -504,7 +507,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         self.disability = False
         self.server_status = ServerStatusCode.SUCCESS
         self.executable_command = {
-            name: True for name in CommandCategory.COMMAND_CATEGORY_MAP.keys()
+            name: False for name in CommandCategory.COMMAND_CATEGORY_MAP.keys()
         }
         self.executable_command["reload"] = True
 
@@ -557,7 +560,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
 
     async def on_ready(self) -> None:
         load_start_time = time.time()
-        await self.data_reload(category="map")
+        await self.data_reload(category="all")
         if self.LOCAL_HOST: return
         channel = self.get_channel(ChannelCode.EXCEPTION_LOG)
         elapsed_time = time.time() - load_start_time
@@ -680,7 +683,6 @@ class EscapeFromTarkovV2Bot(commands.Bot):
 
     # 登録されているスラッシュコマンド以外の例外発生時発火
     async def on_error(self, event, *args, **kwargs):
-        print(event)
         pass
 
     # 登録されているスラッシュコマンド以外の例外発生時発火
@@ -768,7 +770,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                             select_menu.append(command)
                     except:
                         pass
-                    view.add_item(SelectMenu(integration.command.name, select_menu, "地図を出力したいマップを選んでください"))
+                    view.add_item(SelectMenu(integration.command.name, select_menu, "実行したいコマンド選んでください"))
                     self.hints_embed = await self.send_deletable_message(integration, embed=embed, view=view)
             else:
                 message = f"入力されたコマンド {integration.command.name} {integration.namespace.name.lower()} は見つからなかったよ...ごめんね。\n"
