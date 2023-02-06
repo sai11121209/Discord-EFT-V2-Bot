@@ -6,7 +6,7 @@ After=syslog.target network.target
 EnvironmentFile=/etc/sysconfig/discord-bot-eft-v2-env
 WorkingDirectory=/home/sai11121209
 ExecStart=/home/sai11121209/envs/discord-bot-eft-v2/bin/python /home/sai11121209/Discord-EFT-V2-Bot/src/main.py
-Restart=on-failure
+Restart=no
 CPUShares=128
 CPUQuota=15%
 
