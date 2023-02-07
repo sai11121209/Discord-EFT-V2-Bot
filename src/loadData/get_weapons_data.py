@@ -1,6 +1,8 @@
 import re
 import discord
-from const import Url
+import datetime
+from datetime import datetime as dt
+from const import Url, ChannelCode
 from util import get_requests_response, get_beautiful_soup_object
 
 async def get_weapons_data(bot):
@@ -66,8 +68,16 @@ async def get_weapons_data(bot):
     )):
         await bot.set_status(
             status=discord.Status.idle,
-            activity_name=f"タスクデータ({n+1}/{len(weapon_category_list)})読み込み中...",
+            activity_name=f"武器データ({n+1}/{len(weapon_category_list)})読み込み中...",
         )
+        channel = bot.get_channel(ChannelCode.EXCEPTION_LOG)
+        JST = datetime.timezone(datetime.timedelta(hours=9) , 'JST')
+        embed = bot.create_base_embed(
+            title=f"武器データ({n+1}/{len(weapon_category_list)})ロード完了",
+            color=0xFF0000,
+            timestamp=dt.fromtimestamp(dt.now(JST).timestamp()),
+        )
+        await channel.send(embed=embed)
         weapons_data[category] = []
         if category in PRIMARY_CATEGORY or category in SECONDARY_CATEGORY:
             for weapon in weapons.find("tbody").find_all("tr")[1:]:

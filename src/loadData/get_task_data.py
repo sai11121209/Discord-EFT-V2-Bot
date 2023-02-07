@@ -1,7 +1,8 @@
 import re
 import discord
-from const import ChannelCode
-from const import Url
+import datetime
+from datetime import datetime as dt
+from const import Url, ChannelCode
 from util import get_requests_response, get_beautiful_soup_object
 
 async def get_task_data(bot):
@@ -15,9 +16,11 @@ async def get_task_data(bot):
             activity_name=f"タスクデータ({n+1}/{length})読み込み中...",
         )
         channel = bot.get_channel(ChannelCode.EXCEPTION_LOG)
+        JST = datetime.timezone(datetime.timedelta(hours=9) , 'JST')
         embed = bot.create_base_embed(
             title=f"タスクデータ({n+1}/{length})ロード完了",
             color=0xFF0000,
+            timestamp=dt.fromtimestamp(dt.now(JST).timestamp()),
         )
         await channel.send(embed=embed)
         dealerName = tasks.find_all("a")[0].text.replace("\n", "")

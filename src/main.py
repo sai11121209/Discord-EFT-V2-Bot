@@ -569,7 +569,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         embed = discord.Embed(
             title=f" DataLoadLog ({start_time.strftime('%Y%m%d%H%M%S')})",
             color=0xFF0000,
-            timestamp=datetime.datetime.fromtimestamp(dt.now(JST).timestamp()),
+            timestamp=dt.fromtimestamp(dt.now(JST).timestamp()),
         )
         embed.add_field(
             name="DataLoadTime",
