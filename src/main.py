@@ -485,10 +485,7 @@ except ImportError:
     BOT_TOKEN = os.getenv("BOT_TOKEN")
     LOCAL_HOST = False
 
-client = discord.Client(
-    intents=discord.Intents.all(),
-    heartbeat_timeout=2000
-)
+client = discord.Client(intents=discord.Intents.all())
 tree = discord.app_commands.CommandTree(client)
 
 class EscapeFromTarkovV2Bot(commands.Bot):
@@ -564,10 +561,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
 
     async def on_ready(self) -> None:
         load_start_time = time.time()
-        await self.data_reload(category="map")
-        await self.data_reload(category="character")
-        await self.data_reload(category="task")
-        await self.data_reload(category="weapon")
+        await self.data_reload(category="all")
         if self.LOCAL_HOST: return
         channel = self.get_channel(ChannelCode.EXCEPTION_LOG)
         elapsed_time = time.time() - load_start_time
@@ -589,7 +583,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         await channel.send(embed=embed)
         self.change_status.start()
         self.server_status_checker.start()
-        logging.info("Bot Application Start")
+        print("Bot Application Start")
 
     async def data_reload(self, category: str="all"):
         await self.set_status(
@@ -598,23 +592,39 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         )
         if category=="all" or category=="map":
             try:
+                await self.set_status(
+                    status=discord.Status.idle,
+                    activity_name="マップデータ読み込み中...",
+                )
                 self.map_list = get_map_list()
                 self.maps_detail =  get_map_detail(self.map_list)
                 self.executable_command["map"] = True
             except: pass
         if category=="all" or category=="character":
             try:
+                await self.set_status(
+                    status=discord.Status.idle,
+                    activity_name="キャラクターデータ読み込み中...",
+                )
                 self.boss_name = get_boss_name()
                 self.trader_name = get_trader_name()
                 self.executable_command["character"] = True
             except: pass
         if category=="all" or category=="task":
             try:
+                await self.set_status(
+                    status=discord.Status.idle,
+                    activity_name="タスクデータ読み込み中...",
+                )
                 self.tasks_name, self.tasks_detail = get_task_data()
                 self.executable_command["task"] = True
             except: pass
         if category=="all" or category=="weapon":
             try:
+                await self.set_status(
+                    status=discord.Status.idle,
+                    activity_name="武器データ読み込み中...",
+                )
                 self.weapons_name, self.weapons_detail = get_weapons_data()
                 self.ammo_list = get_ammo_data()
                 self.executable_command["weapon"] = True
