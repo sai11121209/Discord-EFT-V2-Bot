@@ -616,7 +616,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                     status=discord.Status.idle,
                     activity_name="タスクデータ読み込み中...",
                 )
-                self.tasks_name, self.tasks_detail = get_task_data()
+                self.tasks_name, self.tasks_detail = await get_task_data(self)
                 self.executable_command["task"] = True
             except: pass
         if category=="all" or category=="weapon":

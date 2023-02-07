@@ -1,12 +1,18 @@
 import re
+import discord
 from const import Url
 from util import get_requests_response, get_beautiful_soup_object
 
-def get_task_data():
+async def get_task_data(bot):
     res = get_requests_response(Url.EN_WIKI, "Quests")
     soup = get_beautiful_soup_object(res, class_name=None)
     task_data = {}
-    for tasks in soup.find_all("table", {"class": "wikitable"}):
+    length = len(soup.find_all("table", {"class": "wikitable"}))
+    for n, tasks in enumerate(soup.find_all("table", {"class": "wikitable"})):
+        await bot.set_status(
+            status=discord.Status.idle,
+            activity_name=f"タスクデータ({n+1}/{length})読み込み中...",
+        )
         dealerName = tasks.find_all("a")[0].text.replace("\n", "")
         try:
             task_data[dealerName] = {
