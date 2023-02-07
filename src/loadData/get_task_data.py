@@ -1,5 +1,6 @@
 import re
 import discord
+from const import ChannelCode
 from const import Url
 from util import get_requests_response, get_beautiful_soup_object
 
@@ -13,6 +14,12 @@ async def get_task_data(bot):
             status=discord.Status.idle,
             activity_name=f"タスクデータ({n+1}/{length})読み込み中...",
         )
+        channel = bot.get_channel(ChannelCode.EXCEPTION_LOG)
+        embed = bot.create_base_embed(
+            title=f"タスクデータ({n+1}/{length})ロード完了",
+            color=0xFF0000,
+        )
+        await channel.send(embed=embed)
         dealerName = tasks.find_all("a")[0].text.replace("\n", "")
         try:
             task_data[dealerName] = {

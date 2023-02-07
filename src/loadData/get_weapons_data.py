@@ -1,8 +1,9 @@
 import re
+import discord
 from const import Url
 from util import get_requests_response, get_beautiful_soup_object
 
-def get_weapons_data():
+async def get_weapons_data(bot):
     res = get_requests_response(Url.EN_WIKI, "Weapons")
     soup = get_beautiful_soup_object(res, class_name=None)
     EXCLUSION = [
@@ -58,11 +59,15 @@ def get_weapons_data():
         if category.get_text().replace(" ", "") not in EXCLUSION
     ]
     weapons_data = {}
-    for weapons, category in zip(
+    for n, (weapons, category) in enumerate(zip(
         soup.find_all("table", class_="wikitable")[
             : len(weapon_category_list) - 1],
         weapon_category_list,
-    ):
+    )):
+        await bot.set_status(
+            status=discord.Status.idle,
+            activity_name=f"タスクデータ({n+1}/{len(weapon_category_list)})読み込み中...",
+        )
         weapons_data[category] = []
         if category in PRIMARY_CATEGORY or category in SECONDARY_CATEGORY:
             for weapon in weapons.find("tbody").find_all("tr")[1:]:

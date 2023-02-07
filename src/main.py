@@ -625,7 +625,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
                     status=discord.Status.idle,
                     activity_name="武器データ読み込み中...",
                 )
-                self.weapons_name, self.weapons_detail = get_weapons_data()
+                self.weapons_name, self.weapons_detail = await get_weapons_data(self)
                 self.ammo_list = get_ammo_data()
                 self.executable_command["weapon"] = True
             except: pass
