@@ -25,8 +25,8 @@ class ChannelCode:
     # EXCEPTION_LOG = 1063454659748044863
 
     # 本番用 eft-announcements チャンネル
-    EFT_ANNOUNCEMENTS = 811566006132408340
-    # 開発用 announcements-log チャンネル
+    EFT_ANNOUNCEMENTS = 811566072574377994
+    # 開発用 eft-announcements チャンネル
     # EFT_ANNOUNCEMENTS = 1063454659748044863
 
     # 本番用 readme チャンネル
@@ -38,11 +38,6 @@ class ChannelCode:
     NOTIFICATION_GNERAL =  839769626585333761
     # 開発用 notification-general チャンネル
     # NOTIFICATION_GNERAL = 1063454659748044863
-
-    # 本番用 eft-announcements チャンネル
-    EFT_ANNOUNCEMENTS = 811566006132408340
-    # 開発用 eft-announcements チャンネル
-    # EFT_ANNOUNCEMENTS = 1063454659748044863
 
 class AuthorCode:
     SAI11121209 = 279995095124803595

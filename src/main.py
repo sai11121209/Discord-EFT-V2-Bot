@@ -840,7 +840,6 @@ class EscapeFromTarkovV2Bot(commands.Bot):
 
     async def on_message(self, message):
         if self.LOCAL_HOST or not message.content: return
-        # メッセージ送信者がBotだった場合は無視する
         if message.author.bot:
             if message.channel.id != ChannelCode.EFT_ANNOUNCEMENTS or message.author.id == self.application.id: return
             res = get_translate_text(message.content)
