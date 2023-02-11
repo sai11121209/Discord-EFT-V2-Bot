@@ -658,18 +658,6 @@ class EscapeFromTarkovV2Bot(commands.Bot):
     @tasks.loop(minutes=1)
     async def server_status_checker(self):
         (self.server_status, context) = get_server_status(previous_status=self.server_status)
-        await bot.set_status(
-            status=discord.Status.idle,
-            activity_name=f"タスクデータ読み込み中...",
-        )
-        channel = bot.get_channel(ChannelCode.EXCEPTION_LOG)
-        JST = datetime.timezone(datetime.timedelta(hours=9) , 'JST')
-        embed = bot.create_base_embed(
-            title=f"タスクデータロード完了",
-            color=0xFF0000,
-            timestamp=dt.fromtimestamp(dt.now(JST).timestamp()),
-        )
-        await channel.send(embed=embed)
         if context is None: return
         channel = self.get_channel(ChannelCode.EFT_ANNOUNCEMENTS)
         embed = self.create_base_embed(
