@@ -127,9 +127,19 @@ async def get_weapons_data(bot):
                                     .contents[0]
                                     .replace(" ", "")
                                     .split(":")[1]
-                                ),
+                                ) if weapon_informations.get("Recoil") else str(
+                                    weapon_informations["Recoil %"]
+                                    .contents[0]
+                                    .replace(" ", "")
+                                    .split(":")[1]
+                                ) ,
                                 "水平反動": str(
                                     weapon_informations["Recoil"]
+                                    .contents[2]
+                                    .replace(" ", "")
+                                    .split(":")[1]
+                                ) if weapon_informations.get("Recoil") else str(
+                                    weapon_informations["Recoil %"]
                                     .contents[2]
                                     .replace(" ", "")
                                     .split(":")[1]
