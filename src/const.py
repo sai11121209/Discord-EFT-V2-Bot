@@ -25,7 +25,7 @@ class ChannelCode:
     # EXCEPTION_LOG = 1063454659748044863
 
     # 本番用 eft-announcements チャンネル
-    EFT_ANNOUNCEMENTS = 811566072574377994
+    EFT_ANNOUNCEMENTS = 811566006132408340
     # 開発用 eft-announcements チャンネル
     # EFT_ANNOUNCEMENTS = 1063454659748044863
 

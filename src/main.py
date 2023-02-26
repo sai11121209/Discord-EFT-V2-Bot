@@ -301,6 +301,9 @@ NOTIFICATION_INFORMATION = {
 }
 # 上に追記していくこと
 PATCH_NOTES = {
+    "5.1:2023/02/26 19:30": [
+        "公式アナウンスが自動翻訳されなかった問題の修正。"
+    ],
     "5.0:2023/01/20 00:00": [
         "コードのリプレイス、リファクタリングを行いました。",
         "ランタイムをPython3.8からPython3.11に移行、これによりプログラム全体の処理速度が向上いたします。",
@@ -842,7 +845,7 @@ class EscapeFromTarkovV2Bot(commands.Bot):
         if self.LOCAL_HOST or not message.content: return
         if message.author.bot:
             if message.channel.id != ChannelCode.EFT_ANNOUNCEMENTS or message.author.id == self.application.id: return
-            res = get_translate_text(message.content)
+            res = get_translate_text(message.content).json()
             if res["code"] == 200:
                 text = "@everyone 多分英語わからんやろ... 翻訳したるわ。感謝しな\n\n"
                 text += res["text"]
