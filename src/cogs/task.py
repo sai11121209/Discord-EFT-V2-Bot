@@ -125,7 +125,8 @@ class Task(commands.Cog):
             )
             embed.set_image(url=task_data["taskThumbnail"])
             await self.bot.send_deletable_message(integration, embed=embed)
-            await self.bot.send_deletable_message(integration, embeds=embeds)
+            if embeds:
+                await self.bot.send_deletable_message(integration, embeds=embeds)
         else:
             for n, (index, values) in enumerate(self.bot.tasks_detail.items()):
                 embed = self.bot.create_base_embed(
