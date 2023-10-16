@@ -28,6 +28,7 @@ def get_map_detail(map_lists):
                 # laboratory: "TheLab-Insurance-Messages-01.PNG"
                 and image["alt"] != "TheLab-Insurance-Messages-01.PNG"
                 and image["alt"] != ""
+                and image.get("data-src")
             ):
                 # 参照画像サイズを800px -> オリジナル画像サイズに変換
                 map_data[key]["Images"].update(
@@ -35,7 +36,7 @@ def get_map_detail(map_lists):
                         image["alt"]: re.sub(
                             "scale-to-width-down/[0-9]*\?cb=[0-9]*",
                             "",
-                            image["data-src"],
+                            image.get("data-src"),
                         )
                         + "?format=original"
                     }
